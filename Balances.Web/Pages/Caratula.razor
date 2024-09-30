@@ -24,23 +24,31 @@
 @inject IHttpContextAccessor httpContextAccessor
 @inject Radzen.DialogService dialogService
 @inject SweetAlertService swal
-@inject IReCaptchaClientService ReCaptchaServiceClient;
+@inject ICaptchaClientService captchaService
 
-<head>
-    <script src="https://www.google.com/recaptcha/api.js?render=6LfVmSEqAAAAAGD0Jm30ss6rGVp35N3s3dsYdTjP"></script>
-</head>
+<!-- Cloudflare Turnstile Setup -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback" async
+        defer></script>
 
 <script>
-    function getToken() {
+    function getTurnstileToken() {
         return new Promise((resolve) => {
-            grecaptcha.ready(function () {
-                grecaptcha.execute('6LfVmSEqAAAAAGD0Jm30ss6rGVp35N3s3dsYdTjP').then(function (token) {
-                    resolve(token);
-                });
-            });
+            const token = document.querySelector('input[name="cf-turnstile-response"]').value;
+            if (token) {
+                resolve(token);
+            } else {
+                console.error("Token not found.");
+                resolve(null);
+            }
         });
     }
+
+    function resetTurnstile() {
+
+        turnstile.reset();
+    }
 </script>
+
 
 <!--Navegacion-->
 
@@ -149,6 +157,7 @@
                             </RadzenStack>
                         </div>
                     </div>
+                    <div class="cf-turnstile" data-sitekey="@("0x4AAAAAAAgjjkwDxcc8R2bx")" data-callback="javascriptCallback"></div>
                 </EditForm>
             </div>
 
@@ -240,47 +249,47 @@
     @* @if (continuadora)
     {
 
-        <div class="card w-100 ">
-            <div class="card-header" style="color: white; font-weight: bold; text-align: center; background-color:#15153D;">
-                Balances Previos
-            </div>
-            <div class="card-body">
-                <RadzenGrid AllowColumnResize="true" Data="listaBalances" TItem="BalanceDto">
-                    <Columns>
-                        <RadzenGridColumn TItem="BalanceDto" Width="15%" Title="Fecha de Inicio">
-                            <Template Context="data">
-                                @($"{data.Caratula.FechaInicio.ToShortDateString()}")
-                            </Template>
-                        </RadzenGridColumn>
-                        <RadzenGridColumn TItem="BalanceDto" Width="15%" Title="Fecha de Cierre">
-                            <Template Context="data">
-                                @($"{data.Caratula.FechaDeCierre.ToShortDateString()}")
-                            </Template>
-                        </RadzenGridColumn>
-                        <RadzenGridColumn TItem="BalanceDto" Width="35%" Title="ID">
-                            <Template Context="data">
-                                @($"{data.Id}")  /  @(data.Caratula.Rectificatorio ? "Rectificación" : "Original")
-                            </Template>
-                        </RadzenGridColumn>
+    <div class="card w-100 ">
+    <div class="card-header" style="color: white; font-weight: bold; text-align: center; background-color:#15153D;">
+    Balances Previos
+    </div>
+    <div class="card-body">
+    <RadzenGrid AllowColumnResize="true" Data="listaBalances" TItem="BalanceDto">
+    <Columns>
+    <RadzenGridColumn TItem="BalanceDto" Width="15%" Title="Fecha de Inicio">
+    <Template Context="data">
+    @($"{data.Caratula.FechaInicio.ToShortDateString()}")
+    </Template>
+    </RadzenGridColumn>
+    <RadzenGridColumn TItem="BalanceDto" Width="15%" Title="Fecha de Cierre">
+    <Template Context="data">
+    @($"{data.Caratula.FechaDeCierre.ToShortDateString()}")
+    </Template>
+    </RadzenGridColumn>
+    <RadzenGridColumn TItem="BalanceDto" Width="35%" Title="ID">
+    <Template Context="data">
+    @($"{data.Id}")  /  @(data.Caratula.Rectificatorio ? "Rectificación" : "Original")
+    </Template>
+    </RadzenGridColumn>
 
-                        <RadzenGridColumn TItem="BalanceDto" Width="35%" Title="Recuperar Balance / Rectificar">
-                            <Template Context="balance">
+    <RadzenGridColumn TItem="BalanceDto" Width="35%" Title="Recuperar Balance / Rectificar">
+    <Template Context="balance">
 
 
-                                <abbr title="Generar Nuevo Con Balance Previo">
-                                    <RadzenButton Icon="history" Text="Recuperar Bal." ButtonStyle="ButtonStyle.Warning" Click="@(() => NuevoDesde(balance.Id))"></RadzenButton>
-                                </abbr>
-                                <abbr title="Rectificar Balance">
-                                    <RadzenButton Icon="cached" Text="Rectificar" ButtonStyle="ButtonStyle.Danger" Click="@(() => RectificarTramite(balance.Id))"></RadzenButton>
-                                </abbr>
+    <abbr title="Generar Nuevo Con Balance Previo">
+    <RadzenButton Icon="history" Text="Recuperar Bal." ButtonStyle="ButtonStyle.Warning" Click="@(() => NuevoDesde(balance.Id))"></RadzenButton>
+    </abbr>
+    <abbr title="Rectificar Balance">
+    <RadzenButton Icon="cached" Text="Rectificar" ButtonStyle="ButtonStyle.Danger" Click="@(() => RectificarTramite(balance.Id))"></RadzenButton>
+    </abbr>
 
-                            </Template>
-                        </RadzenGridColumn>
-                    </Columns>
+    </Template>
+    </RadzenGridColumn>
+    </Columns>
 
-                </RadzenGrid>
-            </div>
-        </div>
+    </RadzenGrid>
+    </div>
+    </div>
     } *@
 
 </div>
@@ -300,6 +309,7 @@
     private bool continuadora = false;
     private string IdTramite;
     private bool entidadEncontrada;
+    private tokenRequest reqToken = new();
     public static bool isActive = false;
     [Parameter]
     public string? balid { get; set; } = null;
@@ -310,10 +320,10 @@
     // private bool loader = false;
     public List<BalanceDto> listaBalances = new();
     private CaratulaDto modelo = new CaratulaDto
-        {
-            Entidad = new Model.Entidad()
+            {
+                Entidad = new Model.Entidad()
 
-        };
+            };
     private Regex emailRegex = new Regex(@"^[^\s@]+@[^\s@]+\.[^\s@]+$", RegexOptions.Compiled);
 
 
@@ -412,26 +422,36 @@
 
     private async Task GetAndSendToken()
     {
-        // loader = true;
-        var token = await JS.InvokeAsync<string>("getToken");
+        try
+        {
 
-        var isValid = await ValidateCaptcha(token);
-        @if (isValid)
-        {
-            FindEntities();
+            reqToken.token = await JS.InvokeAsync<string>("getTurnstileToken");
+
+            var rsp = await ValidateCaptcha(reqToken);
+            if (rsp)
+            {
+                BusyDialog();
+
+                await FindEntities();
+
+            }
+            else
+            {
+                throw new TaskCanceledException("Error al validar");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Manejar el error de validación
-            Console.WriteLine("Captcha no válido");
+            throw ex;
         }
+
     }
 
-    private async Task<bool> ValidateCaptcha(string captchaToken)
+    private async Task<bool> ValidateCaptcha(tokenRequest token)
     {
-        return await ReCaptchaServiceClient.ValidarCaptcha(captchaToken);
-    }
 
+        return await captchaService.ValidatarCaptcha(token);
+    }
 
     private async Task FindEntities()
     {
@@ -475,7 +495,9 @@
 
                             entidadEncontrada = true;
                             // loader = false;
+                            dialogService.Close();
                             StateHasChanged();
+                            await JS.InvokeVoidAsync("resetTurnstile");
                         }
                     }
                     catch (Exception ex)
@@ -514,15 +536,15 @@
             if (result.IsValid)
             {
                 var alerta = await swal.FireAsync(new SweetAlertOptions
-                    {
-                        Title = "Inicio de tramite presentacion de balances y asamblea",
-                        Text = $" Verique Datos: {modelo.Entidad.RazonSocial} {modelo.Entidad.TipoEntidad}, Correlativo: {modelo.Entidad.Correlativo} Fecha cierre ejercicio: {modelo.FechaDeCierre?.ToString("dd/MM/yyyy")}",
-                        Icon = SweetAlertIcon.Warning,
-                        ShowCancelButton = true,
-                        CancelButtonText = "Cancelar",
-                        ConfirmButtonText = "Confirmar"
+                        {
+                            Title = "Inicio de tramite presentacion de balances y asamblea",
+                            Text = $" Verique Datos: {modelo.Entidad.RazonSocial} {modelo.Entidad.TipoEntidad}, Correlativo: {modelo.Entidad.Correlativo} Fecha cierre ejercicio: {modelo.FechaDeCierre?.ToString("dd/MM/yyyy")}",
+                            Icon = SweetAlertIcon.Warning,
+                            ShowCancelButton = true,
+                            CancelButtonText = "Cancelar",
+                            ConfirmButtonText = "Confirmar"
 
-                    });
+                        });
                 if (alerta.IsConfirmed)
                 {
                     var rsp = await caratulaService.insertCaratula(modelo);
@@ -530,14 +552,14 @@
                     if (rsp.IsSuccess)
                     {
                         await swal.FireAsync(new SweetAlertOptions
-                            {
-                                Title = "Presentacion iniciada exitosamente",
-                                Text = $" Te va a llegar un correo {modelo.Email} con un enlace para poder continuar la carga en cualquier instante y lugar.  ",
-                                Icon = SweetAlertIcon.Success,
-                                ShowCancelButton = true,
-                                ConfirmButtonText = "Aceptar"
+                                {
+                                    Title = "Presentacion iniciada exitosamente",
+                                    Text = $" Te va a llegar un correo {modelo.Email} con un enlace para poder continuar la carga en cualquier instante y lugar.  ",
+                                    Icon = SweetAlertIcon.Success,
+                                    ShowCancelButton = true,
+                                    ConfirmButtonText = "Aceptar"
 
-                            });
+                                });
 
                         var resultCaratula = rsp.Result.Caratula;
 
@@ -561,14 +583,14 @@
         {
             Console.WriteLine($"Error: IniciarTramites {ex.Message}");
             await swal.FireAsync(new SweetAlertOptions
-                {
-                    Title = "Error",
-                    Text = $"No se ha podido iniciar el tramite de presentación",
-                    Icon = SweetAlertIcon.Error,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar"
+                    {
+                        Title = "Error",
+                        Text = $"No se ha podido iniciar el tramite de presentación",
+                        Icon = SweetAlertIcon.Error,
+                        ShowCancelButton = true,
+                        ConfirmButtonText = "Aceptar"
 
-                });
+                    });
         }
 
 
@@ -599,15 +621,15 @@
             if (result.IsValid)
             {
                 var alerta = await swal.FireAsync(new SweetAlertOptions
-                    {
-                        Title = "Inicio de tramite presentacion de balances y asamblea",
-                        Text = $" Verique Datos: {modelo.Entidad.RazonSocial} {modelo.Entidad.TipoEntidad}, Correlativo: {modelo.Entidad.Correlativo} Fecha cierre ejercicio: {modelo.FechaDeCierre?.ToString("dd/MM/yyyy")}",
-                        Icon = SweetAlertIcon.Warning,
-                        ShowCancelButton = true,
-                        CancelButtonText = "Cancelar",
-                        ConfirmButtonText = "Confirmar"
+                        {
+                            Title = "Inicio de tramite presentacion de balances y asamblea",
+                            Text = $" Verique Datos: {modelo.Entidad.RazonSocial} {modelo.Entidad.TipoEntidad}, Correlativo: {modelo.Entidad.Correlativo} Fecha cierre ejercicio: {modelo.FechaDeCierre?.ToString("dd/MM/yyyy")}",
+                            Icon = SweetAlertIcon.Warning,
+                            ShowCancelButton = true,
+                            CancelButtonText = "Cancelar",
+                            ConfirmButtonText = "Confirmar"
 
-                    });
+                        });
                 if (alerta.IsConfirmed)
                 {
                     var rsp = await caratulaService.updateCaratula(modelo);
@@ -615,14 +637,14 @@
                     if (rsp.IsSuccess)
                     {
                         await swal.FireAsync(new SweetAlertOptions
-                            {
-                                Title = "Presentacion iniciada exitosamente",
-                                Text = $" Te va a llegar un correo {modelo.Email} con un enlace para poder continuar la carga en cualquier instante y lugar.  ",
-                                Icon = SweetAlertIcon.Success,
-                                ShowCancelButton = true,
-                                ConfirmButtonText = "Aceptar"
+                                {
+                                    Title = "Presentacion iniciada exitosamente",
+                                    Text = $" Te va a llegar un correo {modelo.Email} con un enlace para poder continuar la carga en cualquier instante y lugar.  ",
+                                    Icon = SweetAlertIcon.Success,
+                                    ShowCancelButton = true,
+                                    ConfirmButtonText = "Aceptar"
 
-                            });
+                                });
 
                         isActive = true;
                         tramiteIniciado = true;
@@ -638,14 +660,14 @@
         {
             Console.WriteLine($"Error: IniciarTramites {ex.Message}");
             await swal.FireAsync(new SweetAlertOptions
-                {
-                    Title = "Error",
-                    Text = $"No se ha podido iniciar el tramite de presentación",
-                    Icon = SweetAlertIcon.Error,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar"
+                    {
+                        Title = "Error",
+                        Text = $"No se ha podido iniciar el tramite de presentación",
+                        Icon = SweetAlertIcon.Error,
+                        ShowCancelButton = true,
+                        ConfirmButtonText = "Aceptar"
 
-                });
+                    });
         }
 
 
@@ -666,5 +688,14 @@
         NavigationManager.NavigateTo($"NuevoDesdeCarga/{id}");
     }
 
+
+    async Task BusyDialog()
+    {
+        await dialogService.OpenAsync("", ds =>
+    @<RadzenStack AlignItems="Radzen.AlignItems.Center" Gap="2rem" class="rz-p-12">
+        <RadzenImage Path="img/loading.png" Style="width: 200px;" AlternateText="community" />
+        <RadzenText TextStyle="TextStyle.H6">Loading, please wait...</RadzenText>
+    </RadzenStack>, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+    }
 
 }

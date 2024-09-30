@@ -1,20 +1,26 @@
 ﻿using Balances.Web.Services.Contracts;
+using static Balances.Web.Services.Implementation.CaptchaClientService;
 using System.Net.Http.Json;
+using System.Text;
 
 namespace Balances.Web.Services.Implementation
 {
-    public class ReCaptchaClientService : IReCaptchaClientService
+    public class CaptchaClientService : ICaptchaClientService
     {
+
         private readonly HttpClient _httpClient;
 
-        public ReCaptchaClientService(HttpClient httpClient)
+        public CaptchaClientService(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
 
-        public async Task<bool> ValidarCaptcha(string token)
+
+        public async Task<bool> ValidatarCaptcha(tokenRequest token)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/recaptcha/validate", new { Token = token });
+
+            // Envío de la solicitud POST.
+            var response = await _httpClient.PostAsJsonAsync($"api/captcha/validate", token);
 
             if (response.IsSuccessStatusCode)
             {
@@ -25,14 +31,16 @@ namespace Balances.Web.Services.Implementation
             return false;
         }
     }
-
-
-
     public class CaptchaResponse
     {
         public bool success { get; set; }
         public string challenge_ts { get; set; }
         public string hostname { get; set; }
+    }
+
+    public class tokenRequest
+    {
+        public string token { get; set; }
     }
 }
 

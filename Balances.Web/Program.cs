@@ -55,7 +55,11 @@ builder.Services.AddScoped<IPresentacionClientService, PresentacionClientService
 builder.Services.AddScoped<ISessionClientService, SessionClientService>();
 builder.Services.AddScoped<IBusquedaDeSociedadesClientService, BusquedaDesociedadesClientService>();
 builder.Services.AddScoped<IBalanceClientService, BalanceClientService>();
-builder.Services.AddScoped<IReCaptchaClientService, ReCaptchaClientService>();
+builder.Services.AddScoped<ICaptchaClientService, CaptchaClientService>();
+
+
+
+
 
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddRadzenComponents();

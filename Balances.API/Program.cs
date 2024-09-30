@@ -51,6 +51,9 @@ try
     builder.Services.AddScoped<IArchivoBusiness, ArchivoBusiness>();
     builder.Services.AddScoped<ILibrosBusiness, LibrosBusiness>();
     builder.Services.AddScoped<ISociosBusiness, SociosBusiness>();
+    builder.Services.AddScoped<ICaptchaService, CaptchaService>();
+
+   
 
     builder.Services.AddSingleton<ISessionService, SessionService>();
 
@@ -61,7 +64,6 @@ try
 
     //Captcha
     builder.Services.AddHttpClient();
-    builder.Services.AddScoped<IReCaptchaService, ReCaptchaService>();
 
     //QR
     builder.Services.AddScoped<IQRService, QRService>();
@@ -88,18 +90,21 @@ try
     //AUTOMAPPER
     builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
+
+
     //DB
     builder.Services.Configure<MongoDbSettings>
                               (builder.Configuration.GetSection(nameof(MongoDbSettings)));
     builder.Services.AddSingleton<IMongoDbSettings>
                                  (d => d.GetRequiredService<IOptions<MongoDbSettings>>().Value);
 
+
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("NuevaPolitica", app =>
         {
-            //app.WithOrigins("https://balancesdesa.justicia.ar/")
-            app.WithOrigins("https://localhost:7052") /// Hay que cambiaR
+            app.WithOrigins("https://balancesdesa.justicia.ar", "https://localhost:7052")
+           /* app.WithOrigins("https://localhost:7052")*/ /// Hay que cambiaR
            .AllowAnyHeader()
            .AllowCredentials()
            .SetIsOriginAllowedToAllowWildcardSubdomains()

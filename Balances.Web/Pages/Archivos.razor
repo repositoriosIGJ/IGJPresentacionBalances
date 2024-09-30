@@ -71,7 +71,7 @@
                         <Template Context="data">
                             @($"{data.NombreArchivo}") <br /> @($"{data.FechaCreacion}")
                             <br />
-                            @($"{data.Tamaño} Kb")
+                            @($"{(data.Tamaño / 1000000.0):F2} Mb")
                         </Template>
                     </RadzenGridColumn>
                     <RadzenGridColumn Width="15%" TItem="ArchivoDTO" Title="Hash">
