@@ -1,5 +1,6 @@
 @using Balances.DTO;
 @using Balances.Web.Pages;
+
 @inject NavigationManager NavigationManager
 
 
@@ -80,6 +81,7 @@ else
 
 
 
+
 @code {
     [Parameter] public static string? NroCorrelativo { get; set; }
     [Parameter] public static string? TipoEntidad { get; set; }
@@ -92,6 +94,7 @@ else
     [Parameter] public string? PaginaActiva { get; set; } = "Caratula";
     [Parameter] public bool TramiteIniciado { get; set; }
     [Parameter] public string? balid { get; set; } = null;
+
 
     Radzen.TabPosition tabPosition = Radzen.TabPosition.Top;
 
@@ -163,4 +166,7 @@ else
         }
     }
 
+
 }
+
+    

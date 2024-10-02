@@ -21,6 +21,7 @@
 @inject NotificationService notificationService
 
 
+
 <Navegacion PaginaActiva="Archivos" TramiteIniciado="true" balid="@balid"></Navegacion>
 
 <!---------------------------------------------------------------->
@@ -111,6 +112,7 @@
     public string categoria;
     private List<ArchivoDTO> listArchivo = new List<ArchivoDTO>();
     private ArchivoDTO archivo = new ArchivoDTO();
+
     private IReadOnlyList<IBrowserFile> selectedFiles = new List<IBrowserFile>();
 
 
@@ -141,6 +143,7 @@
             {
                 var rst = await sesionService.getBalanceId(sesionId);
                 if (rst is not null)
+
                 {
                     balid = rst;
                     rsp = await balanceService.getBalance(balid);
@@ -164,8 +167,9 @@
     private void setListArchivos(List<ArchivoDTO> list)
     {
         if (list != null)
+
         {
-            foreach (var x in list)
+            var archivo = new FileDTO
             {
                 var archivo = new ArchivoDTO
                     {
@@ -184,6 +188,7 @@
                 }
             }
         }
+
     }
 
     private async Task<ResponseDTO<BalanceDto>> DeleteArchivo(ArchivoDTO archivo)
@@ -203,6 +208,7 @@
         if (alerta.IsConfirmed)
         {
             try
+
             {
 
                 response = await archivoService.DeleteArchivo(archivo);
@@ -239,6 +245,7 @@
                         Summary = "No se ha podido eliminar la documentación"
                     });
             }
+
 
         }
 
@@ -303,6 +310,7 @@
 
                         if (result.IsValid)
 
+
                         {
                             listArchivo.Add(archivo);
                             if (archivo.Categoria != "Otro")
@@ -311,6 +319,7 @@
                             }
 
                             response = await archivoService.UploadArchivo(listArchivo);
+
 
                             if (response.IsSuccess)
                             {
@@ -353,7 +362,6 @@
                     Summary = "No se ha podido guardar la documentacion"
                 });
         }
-
 
         return response;
     }

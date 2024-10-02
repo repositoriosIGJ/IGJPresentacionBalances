@@ -35,6 +35,7 @@
 
                     <div class="spinner-grow text-primary" role="status">
                         <span class="sr-only"></span>
+
                     </div>
                     <div class="spinner-grow text-secondary" role="status">
                         <span class="sr-only"></span>
@@ -77,6 +78,7 @@
 
     private Modal modalRef;
 
+
     [Parameter]
     public string? balid { get; set; }
     [Parameter]
@@ -88,6 +90,7 @@
 
     ResponseDTO<BalanceDto> rsp = new();
     private EstadoContableDto estadoContable = new EstadoContableDto();
+
 
 
 
@@ -106,6 +109,7 @@
 
             sesionId = await sessionStorage.GetItemAsync<string>("SessionId");
             if (sesionId == null)
+
             {
                 var sesionRespuesta = await sesionService.getNewSession();
 
@@ -115,6 +119,7 @@
             else
             {
                 var rst = await sesionService.getBalanceId(sesionId);
+
 
                 if (rst is not null)
                 {
@@ -159,6 +164,7 @@
                         Icon = "warning",
                         Title = "No se pudo generar el manifiesto de presentación",
 
+
                         Text = "hay datos obligatorios sin completar. Por favor, verifica y completa la información necesaria.",
                         ConfirmButtonText = "Aceptar"
 
@@ -167,6 +173,7 @@
             else
             {
                 responseDto.IsSuccess = false;
+
 
                 // var autoridades = rsp.Result.Autoridades;
 
@@ -194,6 +201,7 @@
 
                 if (!autoridadfirmante)
                 {
+
 
 
                     await swal.FireAsync(new SweetAlertOptions
@@ -244,8 +252,8 @@
                                 Icon = SweetAlertIcon.Success,
                                 ConfirmButtonText = "Cerrar"
 
-                            });
 
+                            });
 
                         var response = await presentacionService.generarPresentacion(sesionId);
 
@@ -273,6 +281,7 @@
                     else
                     {
                         await ShowLoadingModal();
+
 
                         swal.FireAsync(new SweetAlertOptions
                             {
@@ -323,9 +332,5 @@
     {
         return modalRef.Hide();
     }
-
-
-
-
 
 }

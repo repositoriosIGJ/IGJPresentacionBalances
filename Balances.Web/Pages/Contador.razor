@@ -25,6 +25,7 @@
             <div class="card d-flex justify-content-between w-50">
 
 
+
                 <div class="card-header " style="color: white; font-weight: bold; text-align: center; background-color:#15153D;">
                     Datos del Contador Presentante
                 </div>
@@ -117,12 +118,14 @@
 
                 <div class="card-body d-flex flex-column gap-2 align-items-center ">
 
+
                     <RadzenStack>
                         <RadzenLabel Style="font-size:large; font-weight:700" Component="CheckBox3">
                             <RadzenCheckBox @bind-Value="@modelo.EsSocioEstudio" Name="CheckBox3" />
                             Actúa en carácter de Socio de Estudio Contable
                         </RadzenLabel>
                         <ValidationMessage For="@(()=> modelo.EsSocioEstudio)" />
+
 
 
                     </RadzenStack>
@@ -169,6 +172,7 @@
                         </RadzenFormField>
 
 
+
                         <RadzenFormField Text="Nro. de Legalización" class="mt-1">
                             <RadzenTextBox @bind-Value="@modelo.NroLegalInfoAudExt" />
                             <ValidationMessage For="@(()=> @modelo.NroLegalInfoAudExt)" />
@@ -176,7 +180,9 @@
 
                     </div>
 
+
                     <RadzenFormField Text="Opinion" class="mt-1 w-50">
+
 
                         <select class="form-select" @bind="modelo.Opinion">
                             <option value="">--- Seleccionar una opinion ---</option>
@@ -315,7 +321,9 @@
 
         }
 
+
         catch (Exception ex)
+
         {
             respuesta.Message = ex.Message;
             notificationService.Notify(new NotificationMessage
@@ -329,4 +337,5 @@
         return respuesta;
 
     }
+
 }

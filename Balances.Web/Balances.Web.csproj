@@ -6,11 +6,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'https' ">
+    <ExternalConsole>true</ExternalConsole>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' ">
+    <ExternalConsole>true</ExternalConsole>
+  </PropertyGroup>
   <ItemGroup>
     <Content Remove="wwwroot\favicon.png" />
     <Content Remove="wwwroot\icon-192.png" />
     <Content Remove="wwwroot\Plantillas\PlantillaEmail.html" />
     <Content Remove="wwwroot\Plantillas\PlantillaPresentacionBalance.html" />
+    <Content Remove="wwwroot\img\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,9 +57,11 @@
     <Content Update="Pages\UpdatePersonaHumana.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+
     <Content Update="Shared\MainLayout.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+
     <Content Update="wwwroot\css\app.css">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -117,6 +126,10 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\img\" />
+
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\img\" />
+  </ItemGroup>
 </Project>

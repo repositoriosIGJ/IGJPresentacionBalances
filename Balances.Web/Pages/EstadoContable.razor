@@ -1,5 +1,7 @@
 ﻿@page "/EstadoContable/{balid?}"
+
 @using AutoMapper
+
 @using Balances.DTO;
 @using Balances.Model;
 @using Balances.Utilities;
@@ -23,7 +25,6 @@
 @inject SweetAlertService swal
 @inject NotificationService notificationService
 @inject IMapper mapper
-
 
 
 
@@ -392,6 +393,7 @@
 
 @code {
 
+
     private CultureInfo argentinianCulture = new CultureInfo("es-AR");
 
     RadzenGrid<RubroPatrimonioNetoDto> grid;
@@ -420,6 +422,7 @@
             "Otro"
     };
 
+
     protected override async Task OnInitializedAsync()
     {
 
@@ -428,11 +431,13 @@
         await base.OnInitializedAsync();
     }
 
+
     private async Task Load()
     {
         ResponseDTO<BalanceDto> rsp = new();
         try
         {
+
             sesionId = await sessionStorage.GetItemAsync<string>("SessionId");
             if (sesionId == null)
             {
@@ -444,6 +449,7 @@
             {
                 var rst = await sesionService.getBalanceId(sesionId);
                 if (rst is not null)
+
                 {
                     balid = rst;
                     rsp = await balanceService.getBalance(balid);
@@ -463,8 +469,11 @@
                          await estadoContableService.insertEECC(estadoContableDto);
                         }
 
+
                     }
                 }
+
+
 
 
 
@@ -632,7 +641,9 @@
 
     public void setListOtrosRubros(List<RubroPatrimonioNeto> rubros)
     {
+
         if (rubros != null)
+
         {
             estadoContableDto.otrosRubros.Clear();
 
@@ -646,11 +657,4 @@
 
 
 }
-
-
-
-
-
-
-
 

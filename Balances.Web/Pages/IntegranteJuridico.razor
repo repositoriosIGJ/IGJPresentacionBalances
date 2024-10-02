@@ -8,12 +8,14 @@
 
 @inject ISociosClientService socioService;
 @inject IBalanceClientService balanceService
+
 @inject ISessionClientService sesionService
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject SweetAlertService swal;
 @inject NotificationService notificationService
 @inject IDialogService DialogService;
+
 
 
 <Navegacion PaginaActiva="Integrante" TramiteIniciado=true balid="@balid"></Navegacion>
@@ -157,7 +159,9 @@
     [Parameter]
     public string? TipoEntidad { get; set; }
 
+
     private PersonaJuridicaDto model = new PersonaJuridicaDto();
+
     private List<PersonaJuridicaDto> listPersonaJuridica = new List<PersonaJuridicaDto>();
 
 
@@ -207,9 +211,11 @@
 
             foreach (var name in countries)
             {
+
                 Paises.Add(name);
             }
         }
+
 
         catch (Exception ex)
         {
@@ -306,6 +312,7 @@
         }
         catch (Exception ex)
         {
+
             notificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
@@ -313,6 +320,7 @@
                     Summary = "No se ha podido guardar los datos"
                 });
             respuesta.Message = ex.Message;
+
         }
 
         return respuesta;

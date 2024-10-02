@@ -17,6 +17,7 @@
 @inject ICaratulaClientService caratulaService
 @inject IBalanceClientService balanceService
 @inject ISessionClientService sesionService
+
 @inject IBusquedaDeSociedadesClientService busquedaSociedadService
 @inject NavigationManager NavigationManager;
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
@@ -48,6 +49,7 @@
         turnstile.reset();
     }
 </script>
+
 
 
 <!--Navegacion-->
@@ -107,6 +109,7 @@
 
                 </RadzenCard>
             </div>
+
 
         }
         else
@@ -191,6 +194,7 @@
                             </div>
 
 
+
                             <div class="col mt-4">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" value="" id="sedeInscripta" @bind="@modelo.Entidad.SedeSocialInscripta" disabled="@(!entidadEncontrada)">
@@ -226,6 +230,7 @@
                             </div>
                         </div>
 
+
                         <div class="col mt-4 mb-4 d-flex justify-content-center">
                             @if (Navegacion.IdBalance != null)
                             {
@@ -245,6 +250,7 @@
 
         }
     </div>
+
 
     @* @if (continuadora)
     {
@@ -323,24 +329,24 @@
             {
                 Entidad = new Model.Entidad()
 
+
             };
     private Regex emailRegex = new Regex(@"^[^\s@]+@[^\s@]+\.[^\s@]+$", RegexOptions.Compiled);
 
 
-
-
-    protected override async Task OnInitializedAsync()
-    {
+        protected override async Task OnInitializedAsync()
+        {
 
         await Load();
 
         await base.OnInitializedAsync();
     }
 
-    private async Task Load()
-    {
-        try
+
+        private async Task Load()
         {
+            try
+            {
 
             sesionId = await sessionStorage.GetItemAsync<string>("SessionId");
 
@@ -387,6 +393,7 @@
                 else
                 {
                     entidadEncontrada = false;
+
                 }
 
                 StateHasChanged();
@@ -403,7 +410,11 @@
         }
 
 
-    }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine($"SessionId: Hubo un problema con la solicitud fetch: {ex.Message}");
+                throw;
 
     private void setPropertiesCaratula(Model.Caratula caratula)
     {
@@ -416,6 +427,7 @@
         modelo.Entidad.RazonSocial = caratula.Entidad.RazonSocial;
         modelo.Entidad.TipoEntidad = caratula.Entidad.TipoEntidad;
         modelo.Entidad.SedeSocialInscripta = caratula.Entidad.SedeSocialInscripta;
+
 
 
     }
@@ -453,11 +465,10 @@
     //     return await captchaService.ValidatarCaptcha(token);
     // }
 
-    private async Task FindEntities()
-    {
 
+        private async Task FindEntities()
+        {
 
-        int numericNroCorrelativo;
 
         if (modelo.Entidad != null)
         {
@@ -498,6 +509,7 @@
                             dialogService.Close();
                             StateHasChanged();
                             await JS.InvokeVoidAsync("resetTurnstile");
+
                         }
                     }
                     catch (Exception ex)
@@ -505,9 +517,7 @@
                         Console.WriteLine($"Hubo un problema con la solicitud fetch: {ex.Message}");
                     }
 
-
                 }
-
 
             }
             else
@@ -603,6 +613,7 @@
         tramiteIniciado = false;
     }
 
+
     private async Task EditarCaratula()
     {
 
@@ -653,8 +664,14 @@
                         StateHasChanged();
                     }
                 }
+
             }
 
+            emailError = "";
+            domicilioError = "";
+            fechaErrorCierre = "";
+            fechaErrorInicio = "";
+            return true;
         }
         catch (Exception ex)
         {
@@ -699,3 +716,4 @@
     }
 
 }
+

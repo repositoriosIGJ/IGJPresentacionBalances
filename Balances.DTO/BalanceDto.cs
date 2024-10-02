@@ -16,6 +16,7 @@ namespace Balances.DTO
         public Caratula Caratula { get; set; }
         public List<ArchivoDTO> Archivos { get; set; }
         //public List<FileDTO> Archivos { get; set; }
+
         public List<AutoridadDto> Autoridades { get; set; }
         public EstadoContable EstadoContable { get; set; }
         public LibrosDto Libros { get; set; }

@@ -17,8 +17,10 @@
 <Navegacion PaginaActiva="Libros" TramiteIniciado="true" balid="@balid"></Navegacion>
 
 
+
 <div class="container">
     <div class="card">
+
 
         <div class="card-header" style="color: white; font-weight: bold; text-align: center; background-color:#15153D;">
             Datos de Libros
@@ -60,6 +62,7 @@
 
 
 
+
     [Parameter]
     public string? TipoEntidad { get; set; }
 
@@ -84,6 +87,7 @@
             sesionId = await sessionStorage.GetItemAsync<string>("SessionId");
             if (sesionId == null)
             {
+
                 var sesionRespuesta = await sesionService.getNewSession();
                 sesionId = sesionRespuesta.Result;
                 sessionStorage.SetItemAsync("SessionId", sesionId);
@@ -92,13 +96,16 @@
             {
                 var rst = await sesionService.getBalanceId(sesionId);
                 if (rst is not null)
+
                 {
                     balid = rst;
                     rsp = await balanceService.getBalance(balid);
                     if (rsp.IsSuccess)
                     {
+
                         TipoEntidad = rsp.Result.Caratula.Entidad.TipoEntidad;
                         setLibros(rsp.Result.Libros);
+
                         StateHasChanged();
                     }
                 }
@@ -150,6 +157,7 @@
             {
                 libros.SessionId = sesionId;
                 respuesta = await serviceLibro.insertLibros(libros);
+
 
                 notificationService.Notify(new NotificationMessage
                     {

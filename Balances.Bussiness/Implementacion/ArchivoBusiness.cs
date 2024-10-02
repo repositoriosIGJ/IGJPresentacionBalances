@@ -1,6 +1,7 @@
 ﻿using Balances.Bussiness.Contrato;
 using Balances.DTO;
 using Balances.Services.Contract;
+using Balances.Model;
 
 namespace Balances.Bussiness.Implementacion
 {
@@ -28,6 +29,7 @@ namespace Balances.Bussiness.Implementacion
                 //RECUPERO SESION EN EL ARCHIVO
 
                 var sesionid = modelo.SesionId;
+
 
                 // RECUPERO BALANCE
                 var id = _sessionService.GetBalanceId(sesionid);
@@ -110,11 +112,13 @@ namespace Balances.Bussiness.Implementacion
             var listaArchivos = new List<ArchivoDTO>();
 
 
+
             try
             {
                 foreach (var file in ufDto)
                 {
                     newFile = new ArchivoDTO
+
                     {
 
                         Id = Guid.NewGuid().ToString(),
@@ -131,8 +135,6 @@ namespace Balances.Bussiness.Implementacion
                         string Periodo = CalcularPeriodo();
                         Directory.CreateDirectory(_baseDir + Periodo);
                         string fullPath = $@"{_baseDir}\{Periodo}\{newFile.Id}{Path.GetExtension(file.NombreArchivo)}";
-
-                        //File.WriteAllBytes(fullPath, file.DatosBinarios);
 
                         newFile.Hash = file.Hash;
 

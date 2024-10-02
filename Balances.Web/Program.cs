@@ -28,13 +28,15 @@ builder.Services.AddSweetAlert2();
 // R A D Z E N  N O T I F I C A C I O N E S
 builder.Services.AddScoped<NotificationService>();
 
+
 //builder.Services.AddScoped(sp => new HttpClient
 //{
 //    BaseAddress = new Uri("https://balanceapi.justicia.ar/"),
 //    Timeout = TimeSpan.FromSeconds(150)
 //});
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7172/") });
+
+//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7172/") });
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
@@ -65,7 +67,7 @@ builder.Services.AddScoped<DialogService>();
 builder.Services.AddRadzenComponents();
 builder.Services.AddMudServices();
 
-// Ejemplo de configuración para ASP.NET Core
+// Ejemplo de configuraciÃ³n para ASP.NET Core
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.CheckConsentNeeded = context => true;
