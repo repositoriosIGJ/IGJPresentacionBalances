@@ -23,9 +23,9 @@ namespace Balances.Services.Implementation
         }
 
 
-        public async Task<ResponseDTO<bool>> Validate(tokenRequest token)
+        public async Task<ResponseDTO<CaptchaResponse>> Validate(tokenRequest token)
         {
-            ResponseDTO<bool> respuesta = new();
+            ResponseDTO<CaptchaResponse> respuesta = new();
             respuesta.IsSuccess = false;
             try
             {
@@ -37,7 +37,7 @@ namespace Balances.Services.Implementation
            "application/json"
        );
 
-                var response = await _httpClient.PostAsync("https://challenges.cloudflare.com/turnstile/v0/siteverify", content);
+                var response = await _httpClient.PostAsJsonAsync("https://challenges.cloudflare.com/turnstile/v0/siteverify", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -49,8 +49,7 @@ namespace Balances.Services.Implementation
                     });
 
                     respuesta.IsSuccess = true;
-                    respuesta.Result = captchaResponse.success;
-
+                    respuesta.Result = captchaResponse;
                 }
 
                 return respuesta;
@@ -77,11 +76,12 @@ namespace Balances.Services.Implementation
     [property: JsonPropertyName("response")] string Token);
 
 
-        private class CaptchaResponse
-        {
-            public bool success { get; set; }
-            public string challenge_ts { get; set; }
-            public string hostname { get; set; }
-        }
     }
+}
+
+public class CaptchaResponse
+{
+    public bool success { get; set; }
+    public string challenge_ts { get; set; }
+    public string hostname { get; set; }
 }

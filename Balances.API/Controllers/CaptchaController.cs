@@ -19,15 +19,9 @@ namespace Balances.API.Controllers
         public async Task<IActionResult> ValidateCaptcha([FromBody]tokenRequest token)
         {
             
-            var isValid = await _captchaService.Validate(token);
-            if (isValid.IsSuccess)
-            {
-                return Ok(new { success = true });
-            }
-            else
-            {
-                return BadRequest($"{isValid.Message}");
-            }
+            var rsp = await _captchaService.Validate(token);
+                return Ok(rsp);
+          
         }
 
 

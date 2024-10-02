@@ -10,6 +10,6 @@ namespace Balances.Services.Contract
 {
     public interface ICaptchaService
     {
-        Task<ResponseDTO<bool>> Validate(tokenRequest token);
+        Task<ResponseDTO<CaptchaResponse>> Validate(tokenRequest token);
     }
 }

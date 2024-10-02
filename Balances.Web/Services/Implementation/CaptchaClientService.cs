@@ -2,6 +2,7 @@
 using static Balances.Web.Services.Implementation.CaptchaClientService;
 using System.Net.Http.Json;
 using System.Text;
+using Balances.DTO;
 
 namespace Balances.Web.Services.Implementation
 {
@@ -18,17 +19,25 @@ namespace Balances.Web.Services.Implementation
 
         public async Task<bool> ValidatarCaptcha(tokenRequest token)
         {
-
-            // Envío de la solicitud POST.
-            var response = await _httpClient.PostAsJsonAsync($"api/captcha/validate", token);
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var captchaResponse = await response.Content.ReadFromJsonAsync<CaptchaResponse>();
-                return captchaResponse.success;
+                var response = await _httpClient.PostAsJsonAsync($"api/captcha/validate", token);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var captchaResponse = await response.Content.ReadFromJsonAsync<ResponseDTO<CaptchaResponse>>();
+                    return captchaResponse.Result.success;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+
+                return false;
             }
 
-            return false;
         }
     }
     public class CaptchaResponse

@@ -427,18 +427,18 @@
 
             reqToken.token = await JS.InvokeAsync<string>("getTurnstileToken");
 
-            var rsp = await ValidateCaptcha(reqToken);
-            if (rsp)
-            {
+            // var rsp = await ValidateCaptcha(reqToken);
+            // if (rsp)
+            // {
                 BusyDialog();
 
                 await FindEntities();
 
-            }
-            else
-            {
-                throw new TaskCanceledException("Error al validar");
-            }
+            // }
+            // else
+            // {
+            //     await JS.InvokeVoidAsync("resetTurnstile");
+            // }
         }
         catch (Exception ex)
         {
@@ -447,11 +447,11 @@
 
     }
 
-    private async Task<bool> ValidateCaptcha(tokenRequest token)
-    {
+    // private async Task<bool> ValidateCaptcha(tokenRequest token)
+    // {
 
-        return await captchaService.ValidatarCaptcha(token);
-    }
+    //     return await captchaService.ValidatarCaptcha(token);
+    // }
 
     private async Task FindEntities()
     {
