@@ -3,6 +3,8 @@
     public class Libros
     {
 
+
+
         public Libro Memoria { get; set; }
         public Libro Administracion { get; set; }
         public Libro Asamblea { get; set; }
@@ -18,6 +20,8 @@
         public Libro IVA { get; set; }
         public Libro IVACompras { get; set; }
         public Libro IVAVentas { get; set; }
+        public Libro LibroDiario { get; set; }
+
 
     }
 }

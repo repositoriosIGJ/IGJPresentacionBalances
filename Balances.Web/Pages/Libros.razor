@@ -8,104 +8,66 @@
 @using System.Reflection;
 @inject ILibrosClientService serviceLibro;
 @inject IBalanceClientService balanceService
-@inject IBaseSessionClientService sesionService
+@inject ISessionClientService sesionService
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject SweetAlertService swal
+@inject NotificationService notificationService
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Datos de Libros</title>
-    <!-- Agrega los enlaces a los estilos de Bootstrap y otros recursos que puedas necesitar -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+<Navegacion PaginaActiva="Libros" TramiteIniciado="true" balid="@balid"></Navegacion>
 
 
-    <Navegacion Entidad="@($"{TipoEntidad}")" PaginaActiva="Libros" TramiteIniciado="true" balid="@balid"></Navegacion>
+<div class="container">
+    <div class="card">
 
-    <div class="container-fluid mt-2 mb-4">
-        <div class="card">
-            <div class="card-header" style="color: #0375bc; font-weight: bold; text-align: center;">
-                Datos de Libros
-            </div>
-
-            <div class="card-body" >
-                <div class="row d-flex justify-content-center">
-                    <div class="col-md-2 mt-1">
-                        <label class="text-primary">Tipo de Asiento</label>
-                    </div>
-                    <div class="col-md-2 mt-1">
-                        <label class="text-primary">Nombre del Libro</label>
-                    </div>
-
-                    <div class="col-md-1  mt-1">
-                        <label class="text-primary">Nro de Rúbrica</label>
-                    </div>
-
-                    <div class="col-md-1  mt-1">
-                        <label class="text-primary">Fecha Rúbrica</label>
-                    </div>
-                    <div class="col-md-1  mt-1">
-                        <label class ="text-primary">Folio en el que obra la transcripción</label>
-                    </div>
-
-                    <div class="col-md-1  mt-1">
-                        <label class="text-primary">Última Registración del Libro</label>
-                    </div>
-
-                    <div class="col-md-1  mt-1">
-                        <label class="text-primary">Folio de la última Reg.</label>
-                    </div>
-
-                 
-                    <div class="col-md-1 mt-1">
-                        <label class="text-primary">No sabe / No contesta</label>
-                    </div>
-
-                </div>
-                <Libro libroP="modelo.Memoria" OnBlur="() => HandleBlur(modelo.Memoria)"></Libro>
-                <Libro libroP="modelo.Administracion" OnBlur="() => HandleBlur(modelo.Administracion)"></Libro>
-                <Libro libroP="modelo.Asamblea" OnBlur="() => HandleBlur(modelo.Asamblea)"></Libro>
-                <Libro libroP="modelo.SituacionPatrimonial" OnBlur="() => HandleBlur(modelo.SituacionPatrimonial)"></Libro>
-                <Libro libroP="modelo.Resultados" OnBlur="() => HandleBlur(modelo.Resultados)"></Libro>
-                <Libro libroP="modelo.PatrimonioNeto" OnBlur="() => HandleBlur(modelo.PatrimonioNeto)"></Libro>
-                <Libro libroP="modelo.Efectivo" OnBlur="() => HandleBlur(modelo.Efectivo)"></Libro>
-                <Libro libroP="modelo.Informacion" OnBlur="() => HandleBlur(modelo.Informacion)"></Libro>
-                <Libro libroP="modelo.EstadosContablesConsolidados" OnBlur="() => HandleBlur(modelo.EstadosContablesConsolidados)"></Libro>
-                <Libro libroP="modelo.Fiscalizacion" OnBlur="() => HandleBlur(modelo.Fiscalizacion)"></Libro>
-                <Libro libroP="modelo.Auditor" OnBlur="() => HandleBlur(modelo.Auditor)"></Libro>
-                <Libro libroP="modelo.AsistenciaAsamblea" OnBlur="() => HandleBlur(modelo.AsistenciaAsamblea)"></Libro>
-                <Libro libroP="modelo.IVA" OnBlur="() => HandleBlur(modelo.IVA)"></Libro>
-                <Libro libroP="modelo.IVACompras" OnBlur="() => HandleBlur(modelo.IVACompras)"></Libro>
-                <Libro libroP="modelo.IVAVentas" OnBlur="() => HandleBlur(modelo.IVAVentas)"></Libro>
-              
-               
-
-            </div>
-
+        <div class="card-header" style="color: white; font-weight: bold; text-align: center; background-color:#15153D;">
+            Datos de Libros
+        </div>
+        <div class="d-flex">
+            <h5 class="card-header" style="width:33%">Asiento</h5>
+            <h5 class="card-header" style="width:33%">Rubrica</h5>
+            <h5 class="card-header" style="width:33%">Ultima registracion</h5>
+        </div>
+        <div class="card-body d-flex flex-column gap-3 justify-content-center">
+            <Libro libroP="modelo.Memoria" ></Libro>
+            <Libro libroP="modelo.Administracion" ></Libro>
+            <Libro libroP="modelo.Asamblea"></Libro>
+            <Libro libroP="modelo.SituacionPatrimonial "></Libro>
+            <Libro libroP="modelo.Resultados" ></Libro>
+            <Libro libroP="modelo.PatrimonioNeto" ></Libro>
+            <Libro libroP="modelo.Efectivo" ></Libro>
+            <Libro libroP="modelo.Informacion" ></Libro>
+            <Libro libroP="modelo.EstadosContablesConsolidados" ></Libro>
+            <Libro libroP="modelo.Fiscalizacion" ></Libro>
+            <Libro libroP="modelo.Auditor" ></Libro>
+            <Libro libroP="modelo.AsistenciaAsamblea"></Libro>
+            <Libro libroP="modelo.IVACompras" ></Libro>
+            <Libro libroP="modelo.IVAVentas" ></Libro>
+            <Libro libroP="modelo.LibroDiario"></Libro>
 
         </div>
-        <!--<div class="mt-3 mb-4">
-            <button class="btn btn-primary w-100" @onclick="ToggleSelectAll">Seleccionar/Deseleccionar todos</button>
-        </div>-->
+            <RadzenStack class="mt-4 mb-2">
+            <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Click="@(() => insertLibros(modelo))">Guardar</RadzenButton>
+            </RadzenStack>
     </div>
 
 
-</body>
-</html>
+</div>
 
 
-
-@code {
-
-    [Parameter] public string? balid { get; set; } = null;
+@code{
     private LibrosDto modelo = new LibrosDto();
 
-    [Parameter] public string? TipoEntidad { get; set; }
 
-    private bool allSelected = false;
 
+    [Parameter]
+    public string? TipoEntidad { get; set; }
+
+    [Parameter]
+    public string? balid { get; set; }
+
+    [Parameter]
+    public string sesionId { get; set; }
 
     protected override async void OnInitialized()
     {
@@ -114,294 +76,38 @@
     }
 
 
-    private async Task HandleBlur(LibroDto libro)
-    {
-
-        // Encuentra el libro correspondiente en el modelo y actualiza sus valores
-        if (libro != null)
-        {
-
-            if (modelo.Asamblea == libro)
-            {
-                modelo.Asamblea = libro;
-            }
-            else if (modelo.Administracion == libro)
-            {
-                modelo.Administracion = libro;
-            }
-            else if (modelo.AsistenciaAsamblea == libro)
-            {
-                modelo.AsistenciaAsamblea = libro;
-            }
-            else if (modelo.Auditor == libro)
-            {
-                modelo.Auditor = libro;
-            }
-
-            else if (modelo.Efectivo == libro)
-            {
-                modelo.Efectivo = libro;
-            }
-            else if (modelo.Fiscalizacion == libro)
-            {
-                modelo.Fiscalizacion = libro;
-            }
-            else if (modelo.IVA == libro)
-            {
-                modelo.IVA = libro;
-            }
-
-            else if (modelo.IVACompras == libro)
-            {
-                modelo.IVACompras = libro;
-            }
-            else if (modelo.IVAVentas == libro)
-            {
-                modelo.IVAVentas = libro;
-            }
-            else if (modelo.Resultados == libro)
-            {
-                modelo.Resultados = libro;
-            }
-
-            else if (modelo.EstadosContablesConsolidados == libro)
-            {
-                modelo.EstadosContablesConsolidados = libro;
-            }
-            else if (modelo.PatrimonioNeto == libro)
-            {
-                modelo.PatrimonioNeto = libro;
-            }
-            else if (modelo.SituacionPatrimonial == libro)
-            {
-                modelo.SituacionPatrimonial = libro;
-            }
-            else if (modelo.Memoria == libro)
-            {
-                modelo.Memoria = libro;
-            }
-            else if (modelo.Informacion == libro)
-            {
-                modelo.Informacion = libro;
-            }
-
-        }
-
-        await insertLibros(modelo);
-    }
-
-
-
-
-    /* private async Task ToggleSelectAll()
-    {
-    allSelected = !allSelected;
-
-    foreach (var libro in ObtenerTodosLosLibros())
-    {
-    // Verificar si el libro está completo
-    bool isComplete = LibroEstaCompleto(libro);
-
-    // Si el libro está completo o no está marcado como "N/C", actualizar según la operación de selección/deselección en masa
-    if (isComplete || libro.Nombre != "N/C")
-{
-libro.NoSabeNoContesta = allSelected;
-    libro.Nombre = allSelected ? libro.Nombre : libro.Nombre;
-    libro.NumeroRubrica = allSelected ? libro.NumeroRubrica : libro.NumeroRubrica;
-        libro.FechaUltimaRegistracion = allSelected ? DateTime.Now : libro.FechaUltimaRegistracion;
-        libro.FechaRubrica = allSelected ? DateTime.Now : libro.FechaRubrica;
-        libro.Folio = allSelected ? libro.Folio : libro.Folio;
-
-
-        }
-        else
-        {
-        // Si el libro está marcado como "N/C" y se realiza una deselección en masa, eliminar el libro del modelo
-        if (!allSelected)
-        {
-        libro.NoSabeNoContesta = allSelected;
-        libro.Nombre = allSelected ? "N/C" : libro.Nombre;
-libro.NumeroRubrica = allSelected ? "N/C" : libro.NumeroRubrica;
-libro.FechaUltimaRegistracion = allSelected ? DateTime.Now : libro.FechaUltimaRegistracion;
-       libro.FechaRubrica = allSelected ? DateTime.Now : libro.FechaRubrica;
-libro.Folio = allSelected ? "N/C" : libro.Folio;
-
-//EliminarLibro(libro);
-}
-}
-}
-
-// Actualizar el modelo con los cambios
-await insertLibros(modelo);
-StateHasChanged(); // Notificar a Blazor que se ha actualizado el estado
-}*/
-
-
-
-    /*private void EliminarLibro(LibroDto libro)
-{
-if (modelo.Asamblea == libro)
-    {
-    modelo.Asamblea = null;
-}
-else if (modelo.Administracion == libro)
-{
-    modelo.Administracion = null;
-}
-else if (modelo.AsistenciaAsamblea == libro)
-{
-    modelo.AsistenciaAsamblea = null;
-}
-else if (modelo.Auditor == libro)
-{
-    modelo.Auditor = null;
-    }
-
-else if (modelo.Efectivo == libro)
-{
-modelo.Efectivo = null;
-    }
-    else if (modelo.Fiscalizacion == libro)
-{
-modelo.Fiscalizacion = null;
-    }
-    else if (modelo.IVA == libro)
-{
-modelo.IVA = null;
-}
-
-else if (modelo.IVACompras == libro)
-    {
-modelo.IVACompras = null;
-}
-else if (modelo.IVAVentas == libro)
-    {
-    modelo.IVAVentas = null;
-    }
-else if (modelo.Resultados == libro)
-{
-modelo.Resultados = null;
-    }
-
-    else if (modelo.EstadosContablesConsolidados == libro)
-{
-modelo.EstadosContablesConsolidados = null;
-    }
-    else if (modelo.PatrimonioNeto == libro)
-{
-modelo.PatrimonioNeto = null;
-    }
-    else if (modelo.SituacionPatrimonial == libro)
-{
-modelo.SituacionPatrimonial = null;
-    }
-    else if (modelo.Memoria == libro)
-{
-modelo.Memoria = null;
-}
-else if (modelo.Informacion == libro)
-{
-modelo.Informacion = libro;
-}
-}*/
-
-    /*private bool LibroEstaCompleto(LibroDto libro)
-    {
-    // Aquí debes implementar la lógica para verificar si todas las propiedades del libro están completas
-    // Devuelve true si todas las propiedades están completas, de lo contrario, devuelve false
-
-    // Por ejemplo, podrías verificar si todas las propiedades tienen valores distintos de "NC" o si las propiedades de fecha no están en su valor mínimo
-
-                        bool estaCompleto = !string.IsNullOrEmpty(libro.Nombre)  &&
-                        !string.IsNullOrEmpty(libro.NumeroRubrica)  &&
-                        libro.FechaUltimaRegistracion != DateTime.Now &&
-    libro.FechaRubrica != DateTime.Now &&
-!string.IsNullOrEmpty(libro.Folio);
-
-    return estaCompleto;
-    }
-
-    private List<LibroDto> ObtenerTodosLosLibros()
-    {
-    // Aquí debes implementar la lógica para obtener todos los libros del modelo
-    // Devuelve una lista que contenga todos los libros
-    var todosLosLibros = new List<LibroDto>
-    {
-    modelo.Asamblea,
-    modelo.Administracion,
-    modelo.AsistenciaAsamblea,
-    modelo.Auditor,
-    modelo.Efectivo,
-    modelo.Fiscalizacion,
-    modelo.IVA,
-    modelo.IVACompras,
-    modelo.IVAVentas,
-    modelo.Resultados,
-    modelo.EstadosContablesConsolidados,
-    modelo.PatrimonioNeto,
-    modelo.SituacionPatrimonial,
-    modelo.Memoria,
-    modelo.Informacion
-    };
-
-return todosLosLibros;
-}
-
-private async Task HandleBlur(LibrosDto libro)
-    {
-    await insertLibros(libro); // Llama al método que deseas ejecutar cuando se produce el evento onblur
-}*/
-
-
-
     private async Task Load()
     {
+        ResponseDTO<BalanceDto> rsp = new();
         try
         {
-
-
-            var idSession = await sesionService.GetSessionBalanceId();
-
-
-            if (idSession !=null)
+            sesionId = await sessionStorage.GetItemAsync<string>("SessionId");
+            if (sesionId == null)
             {
-
-                balid = idSession;
-
-                var response = await balanceService.getBalance(idSession);
-
-                if (response.IsSuccess == true)
+                var sesionRespuesta = await sesionService.getNewSession();
+                sesionId = sesionRespuesta.Result;
+                sessionStorage.SetItemAsync("SessionId", sesionId);
+            }
+            else
+            {
+                var rst = await sesionService.getBalanceId(sesionId);
+                if (rst is not null)
                 {
-
-                    try
+                    balid = rst;
+                    rsp = await balanceService.getBalance(balid);
+                    if (rsp.IsSuccess)
                     {
-                        var result = response.Result;
-
-                        if (result != null)
-                        {
-                            TipoEntidad = result.Caratula.Entidad.TipoEntidad;
-
-                            setLibros(result.Libros);
-                        }
-
+                        TipoEntidad = rsp.Result.Caratula.Entidad.TipoEntidad;
+                        setLibros(rsp.Result.Libros);
                         StateHasChanged();
-
-                    }
-                    catch (Exception ex)
-                    {
-
-                        Console.WriteLine($"GetBalance: Hubo un problema con la solicitud fetch: {ex.Message}");
                     }
                 }
             }
-
         }
         catch (Exception ex)
         {
             Console.WriteLine($"SessionId: Hubo un problema con la solicitud fetch: {ex.Message}");
-
         }
-
     }
 
     private void setLibros(LibrosDto libros)
@@ -412,17 +118,46 @@ private async Task HandleBlur(LibrosDto libro)
         }
     }
 
-
     private async Task<ResponseDTO<BalanceDto>> insertLibros(LibrosDto libros)
     {
-
         ResponseDTO<BalanceDto> respuesta = new();
 
         try
         {
 
-            respuesta = await serviceLibro.insertLibros(libros);
+            if (libros.Asamblea.Nombre is null || libros.Asamblea.Nombre == "" ||
+          libros.LibroDiario.Nombre is null || libros.LibroDiario.Nombre == "" ||
+          libros.Memoria.Nombre is null || libros.Memoria.Nombre == "" ||
+          libros.Resultados.Nombre is null || libros.Resultados.Nombre == "" ||
+          libros.Administracion.Nombre is null || libros.Administracion.Nombre == "" ||
+          libros.PatrimonioNeto.Nombre is null || libros.PatrimonioNeto.Nombre == "" ||
+          libros.SituacionPatrimonial.Nombre is null || libros.SituacionPatrimonial.Nombre == "" ||
+          libros.Efectivo.Nombre is null || libros.Efectivo.Nombre == "" ||
+          libros.Informacion.Nombre is null || libros.Informacion.Nombre == "" ||
+          libros.Auditor.Nombre is null || libros.Auditor.Nombre == "" ||
+          libros.AsistenciaAsamblea.Nombre is null || libros.AsistenciaAsamblea.Nombre == "" )
+            {
+                var alerta = await swal.FireAsync(new SweetAlertOptions
+                    {
+                        Title = "Error",
+                        Text = $"Faltan completar datos",
+                        Icon = SweetAlertIcon.Warning,
+                        ConfirmButtonText = "Cerrar"
 
+                    });
+            }
+            else
+            {
+                libros.SessionId = sesionId;
+                respuesta = await serviceLibro.insertLibros(libros);
+
+                notificationService.Notify(new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Duration = 3000,
+                        Summary = "Datos guardados correctamente"
+                    });
+            }
         }
         catch (Exception ex)
         {
@@ -431,4 +166,10 @@ private async Task HandleBlur(LibrosDto libro)
 
         return respuesta;
     }
+
 }
+
+
+
+
+

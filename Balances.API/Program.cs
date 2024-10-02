@@ -26,6 +26,7 @@ try
 
     builder.Services.AddControllers();
 
+
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
@@ -50,6 +51,9 @@ try
     builder.Services.AddScoped<IArchivoBusiness, ArchivoBusiness>();
     builder.Services.AddScoped<ILibrosBusiness, LibrosBusiness>();
     builder.Services.AddScoped<ISociosBusiness, SociosBusiness>();
+    builder.Services.AddScoped<ICaptchaService, CaptchaService>();
+
+   
 
     builder.Services.AddSingleton<ISessionService, SessionService>();
 
@@ -58,7 +62,8 @@ try
     builder.Services.AddScoped<IArchivoService, ArchivoService>();
     builder.Services.AddScoped<IPresentacionBusiness, PresentacionBusiness>();
 
-
+    //Captcha
+    builder.Services.AddHttpClient();
 
     //QR
     builder.Services.AddScoped<IQRService, QRService>();
@@ -75,6 +80,7 @@ try
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+ 
 
 
 
@@ -85,21 +91,26 @@ try
     //AUTOMAPPER
     builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
+
+
     //DB
     builder.Services.Configure<MongoDbSettings>
                               (builder.Configuration.GetSection(nameof(MongoDbSettings)));
     builder.Services.AddSingleton<IMongoDbSettings>
                                  (d => d.GetRequiredService<IOptions<MongoDbSettings>>().Value);
 
+
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("NuevaPolitica", app =>
         {
-            app.AllowAnyOrigin().
-            AllowAnyHeader()
-             .SetIsOriginAllowedToAllowWildcardSubdomains()
-             .WithMethods("GET", "PUT", "POST", "DELETE", "OPTIONS")
-             .SetPreflightMaxAge(TimeSpan.FromSeconds(3600));
+            app.WithOrigins("https://balancesdesa.justicia.ar", "https://localhost:7052")
+           /* app.WithOrigins("https://localhost:7052")*/ /// Hay que cambiaR
+           .AllowAnyHeader()
+           .AllowCredentials()
+           .SetIsOriginAllowedToAllowWildcardSubdomains()
+           .WithMethods("GET", "PUT", "POST", "DELETE", "OPTIONS")
+           .SetPreflightMaxAge(TimeSpan.FromSeconds(3600));
 
         });
     });
@@ -107,11 +118,11 @@ try
 
 
     builder.Services.AddSession(options =>
-    {
-        options.IdleTimeout = TimeSpan.FromHours(3);
-        options.Cookie.HttpOnly = true;
-        options.Cookie.IsEssential = true;
-    });
+{
+    options.IdleTimeout = TimeSpan.FromDays(60);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
     builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 

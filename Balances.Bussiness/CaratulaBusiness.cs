@@ -40,12 +40,6 @@ namespace Balances.Bussiness
             _logger = logger;
         }
 
-        public bool Delete(CaratulaDto modelo)
-        {
-            throw new NotImplementedException();
-        }
-
-
 
         public ResponseDTO<Balance> Insert(CaratulaDto modelo)
         {
@@ -54,6 +48,7 @@ namespace Balances.Bussiness
             var caratulaSerializada = JsonConvert.SerializeObject(modelo);
             try
             {
+
                 var balance = new Balance();
 
                 balance.Caratula = MapearCaratula(modelo);
@@ -61,6 +56,10 @@ namespace Balances.Bussiness
                 var rsp = _balanceBusiness.Insert(balance);
 
                 var balanceDto = _mapper.Map<BalanceDto>(balance);
+
+                //guardo el balance en la sesion
+                _sessionService.SetBalance(modelo.SesionId, rsp.Result.Id);
+
 
                 var plantillahtml = CrearPlantillaInicioTramite(balanceDto);
 
@@ -71,13 +70,107 @@ namespace Balances.Bussiness
                 // si inserto correctamente
                 if (rsp != null)
                 {
-                    _sessionService.SetSession(balance.Id);
+                    //_sessionService.SetSession(balance.Id);
 
                     respuesta.IsSuccess = true;
                     respuesta.Message = "Caratula creada correctamente";
                     respuesta.Result = balance;
                     _logger.LogInformation($"CaratulaBusiness.Insert --> {caratulaSerializada}");
                 }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                respuesta.Message = ex.Message;
+                _logger.LogError($"CaratulaBusiness.Insert  \n {caratulaSerializada}  \n {ex.Message} ");
+
+
+            }
+            return respuesta;
+        }
+
+
+        public ResponseDTO<BalanceDto> Rectificar(BalanceDto balance)
+        {
+            ResponseDTO<BalanceDto> respuesta = new ResponseDTO<BalanceDto>();
+            respuesta.IsSuccess = false;
+            var caratulaSerializada = JsonConvert.SerializeObject(balance.Caratula);
+
+            try
+            {
+
+                var rst = _balanceBusiness.Update(balance);
+
+
+                var plantillahtml = CrearPlantillaInicioTramite(balance);
+
+                var email = CrearEmaiInicioTramite(balance, plantillahtml);
+                //var EmailRequest = _emailSenderService.EmaiInicioTramite(balanceDto);
+                _emailSenderService.SendEmailAsync(email);
+
+                // si inserto correctamente
+                if (rst != null)
+                {
+                    //_sessionService.SetSession(balance.Id);
+
+                    respuesta.IsSuccess = true;
+                    respuesta.Message = "Caratula creada correctamente";
+                    respuesta.Result = balance;
+                    _logger.LogInformation($"CaratulaBusiness.Insert --> {caratulaSerializada}");
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                respuesta.Message = ex.Message;
+                _logger.LogError($"CaratulaBusiness.Insert  \n {caratulaSerializada}  \n {ex.Message} ");
+
+
+            }
+            return respuesta;
+        }
+
+
+        public ResponseDTO<BalanceDto> Update(CaratulaDto modelo)
+        {
+            ResponseDTO<BalanceDto> respuesta = new ResponseDTO<BalanceDto>();
+            respuesta.IsSuccess = false;
+            var caratulaSerializada = JsonConvert.SerializeObject(modelo);
+            try
+            {
+
+                var id = _sessionService.GetBalanceId(modelo.SesionId);
+
+                var balanceDto = _balanceBusiness.GetById(id);
+
+                var modeloDto = _mapper.Map<Caratula>(modelo);
+                balanceDto.Result.Caratula = modeloDto;
+                var rsp = _balanceBusiness.Update(balanceDto.Result);
+
+                // si actualizo correctamente
+
+                if (rsp != null)
+                {
+
+
+                    respuesta.IsSuccess = true;
+                    respuesta.Message = "Caratula actualizada correctamente";
+                    respuesta.Result = rsp.Result;
+                    _logger.LogInformation($"CaratulaBusiness.Update --> {caratulaSerializada}");
+                }
+
+                var plantillahtml = CrearPlantillaInicioTramite(balanceDto.Result);
+
+                var email = CrearEmaiInicioTramite(balanceDto.Result, plantillahtml);
+                //var EmailRequest = _emailSenderService.EmaiInicioTramite(balanceDto);
+                _emailSenderService.SendEmailAsync(email);
+
+
+
 
 
 
@@ -114,7 +207,7 @@ namespace Balances.Bussiness
             var path = _webHostEnvironment.ContentRootPath + "/Plantillas";
             var Plantilla = path + "/" + plantilla;
 
-            var PlantillaHTML = File.ReadAllText(Plantilla);
+            var PlantillaHTML = System.IO.File.ReadAllText(Plantilla);
             return PlantillaHTML;
         }
 
@@ -139,11 +232,11 @@ namespace Balances.Bussiness
                 var pathImage = _webHostEnvironment.ContentRootPath + "/Plantillas/Imagenes";
 
                 /* A G R E G AM O S   I M A G E N E S   H E A D E R */
-                var imgIGJ = builder.LinkedResources.Add("igj.png", File.ReadAllBytes(pathImage + "/igj.png"));
+                var imgIGJ = builder.LinkedResources.Add("igj.png", System.IO.File.ReadAllBytes(pathImage + "/igj.png"));
                 imgIGJ.ContentId = MimeUtils.GenerateMessageId();
                 html = html.Replace("{{igjImage}}", imgIGJ.ContentId);
 
-                var imgMIN = builder.LinkedResources.Add("ministerio.png", File.ReadAllBytes(pathImage + "/ministerio.png"));
+                var imgMIN = builder.LinkedResources.Add("ministerio.png", System.IO.File.ReadAllBytes(pathImage + "/ministerio.png"));
                 imgMIN.ContentId = MimeUtils.GenerateMessageId();
                 html = html.Replace("{{MinImage}}", imgMIN.ContentId);
 
@@ -196,15 +289,9 @@ namespace Balances.Bussiness
             return caratuladto;
         }
 
-        public IEnumerable<CaratulaDto> List()
-        {
-            throw new NotImplementedException();
-        }
 
-        public bool Update(CaratulaDto modelo)
-        {
-            throw new NotImplementedException();
-        }
+
+
 
     }
 }

@@ -3,307 +3,308 @@
 @using Balances.Utilities;
 @using Balances.Web.Services.Contracts;
 @using Balances.Web.Services.Implementation;
+@using FluentValidation.Results
+
 @inject IAutoridadClientService autoridadService
-@inject IBaseSessionClientService sesionService
+@inject ISessionClientService sesionService
 @inject IBalanceClientService balanceService
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+
 @inject NavigationManager NavigationManager
+@inject Radzen.DialogService dialogService;
+@inject SweetAlertService swal;
+@inject NotificationService notificationService
+@inject IDialogService DialogService;
 
-
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario con Bootstrap</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-
-
-    <link href="_content/Blazorise/blazorise.css" rel="stylesheet" />
-    <link href="_content/Blazorise.Bootstrap/blazorise.bootstrap.css" rel="stylesheet" />
+<RadzenDialog></RadzenDialog>
 
 
 
-</head>
+<Navegacion PaginaActiva="Autoridad" TramiteIniciado="true" balid="@balid"></Navegacion>
 
 
-<body>
-
-    <Navegacion Entidad="@($"{TipoEntidad}")" PaginaActiva="Autoridad" TramiteIniciado="true" balid="@balid"></Navegacion>
+<div class="container d-flex  justify-content-between p-1 gap-1 ">
 
 
-    <!---------------------------------------------------------------->
-    <div class="row">
-        <div class="col-md-6">
-            <div class="container mt-4">
-                <div class="card">
-                    <div class="card-header" style="color: #0375bc; font-weight: bold; text-align: center;">
-                        Datos de la Autoridad
-                    </div>
+    <!--Formulario autoridades-->
+    <div class="card w-50  ">
+        <EditForm Model="modelo" class="d-flex gap-1  flex-column">
 
-                    <div class="card-body">
-                        <form>
-                            <div class="form-row">
-                                <div class="form-group col-md-4">
-                                    <label for="inputNombre">Nombre</label>
-                                    <input type="text" class="form-control" id="inputNombre" placeholder="Nombre" @bind=modelo.Nombre>
-                                    <small id="msgError" class="text-danger">@msgErrorNombre</small>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="inputApellido">Apellido</label>
-                                    <input type="text" class="form-control" id="inputApellido" placeholder="Apellido" @bind=modelo.Apellido>
-                                    <small id="msgError" class="text-danger">@msgErrorApellido</small>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="selectTipoDocumento">Tipo de Documento</label>
-                                    <select id="selectTipoDocumento" class="form-select" @bind="modelo.TipoDocumento">
-                                        <option selected>Seleccionar...</option>
-                                        <option value="DNI">DNI</option>
-                                        <option value="Pasaporte">Pasaporte</option>
-                                        <option value="Cédula">Cédula</option>
-                                    </select>
-                                    <small id="msgError" class="text-danger">@msgErrorTipoDeDoc</small>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-4">
-                                    <label for="inputNumeroDocumento">Nro. de Documento</label>
-                                    <input type="text" class="form-control" id="inputNumeroDocumento" placeholder="Número de Documento" @bind="modelo.NroDocumento">
-                                    <small id="msgError" class="text-danger">@msgErrorNroDoc</small>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="inputNumeroFiscal">Nro de Id. Fiscal</label>                                    
-                                    <input type="text" class="form-control" id="inputNumeroFiscal" placeholder="Número de Identificación Fiscal" @bind="modelo.NroFiscal">
-                                    <small id="msgError" class="text-danger">@msgErrorNroIdFiscal</small>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="inputCargo">Cargo</label>
-                                    <input type="text" class="form-control" id="inputCargo" placeholder="Cargo" @bind="modelo.Cargo">
-                                    <small id="msgError" class="text-danger">@msgErrorCargo</small>
-
-                                </div>
-                            </div>
-                            <div class="form-group form-check">
-                                <input type="checkbox" class="form-check-input" id="checkboxFirmante" @bind="modelo.EsFirmante">
-                                <label class="form-check-label" for="checkboxFirmante">Es Firmante</label>
-                            </div>
-
-                            <button type="button" class="btn btn-primary w-100" @onclick="insertAutoridad">Agregar</button>
-                        </form>
-                    </div>
-                </div>
+            <FluentValidationValidator />
+            <div class="card-header" style="color: white; font-weight: bold; text-align: center; background-color:#15153D;">
+                Datos de la Autoridad
             </div>
-        </div>
 
 
+            <div class="card-body d-flex flex-column gap-2 justify-content-between">
 
-        <div class="col-md-6">
-            <div class="container mt-4">
-                <div class="card">
-                    <div class="card-header" style="color: #0375bc; font-weight: bold; text-align: center;">
-                        Autoridades
-                    </div>
-                    <div class="card-body mb-4">
 
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Apellido y Nombre</th>
-                                    <th scope="col">Nro Documento</th>
-                                    <th scope="col">CUIT</th>
-                                    <th scope="col">Cargo</th>
-                                    <th scope="col">Firmante</th>
-                                    <th scope="col">Acción</th>
-                                   
-                                </tr>
-                            </thead>
-                            @foreach (var autoridad in listAutoridades)
-                            {
-                                <tbody>
-                                    <tr>
-                                        <td>@autoridad.Apellido @autoridad.Nombre</td>
-                                        <td>@autoridad.NroDocumento</td>
-                                        <td>@autoridad.NroFiscal</td>
-                                        <td>@autoridad.Cargo</td>
-                                        <td>@(autoridad.EsFirmante ? "Sí" : "No")</td>
-                                        <td>
-                                            <button type="button" class="btn btn-danger" @onclick="() => deleteAutoridad(autoridad)">Eliminar</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            }
-                        </table>
-                    </div>
+                <!--Nombre y apellido-->
+                <div class="d-flex gap-1">
+
+                    <RadzenStack Style="width:50%">
+                        <RadzenFormField Text="Nombre">
+                            <RadzenTextBox MaxLength="24" type="text" @bind-Value="@modelo.Nombre" />
+                            <ValidationMessage For="@(()=> modelo.Nombre)" />
+                        </RadzenFormField>
+                    </RadzenStack>
+
+                    <RadzenStack Style="width:50%">
+                        <RadzenFormField Text="Apellido">
+                            <RadzenTextBox MaxLength="24" type="text" @bind-Value="@modelo.Apellido" />
+                            <ValidationMessage For="@(()=> modelo.Apellido)" />
+                        </RadzenFormField>
+
+                    </RadzenStack>
+
+
                 </div>
-            </div>
-        </div>
 
-        <Modal @ref="modalRef">
-            <ModalContent Centered>
-                <ModalHeader>
-                    <ModalTitle>Autoridades</ModalTitle>
-                    <CloseButton />
-                </ModalHeader>
-                <ModalBody>
-                    <p class="d-flex justify-content-center">No puede haber más dos firmantes.</p>
-                </ModalBody>
-                <ModalFooter>
-                    <Button Color="Color.Secondary" Clicked="@HideModal">Close</Button>
-                </ModalFooter>
-            </ModalContent>
-        </Modal>
-       
+                <!--DNI-->
+                <div class="d-flex justify-content-between w-100 gap-1">
+
+                    <RadzenStack Style="width:30%;">
+                        <RadzenFormField Text="Tipo de Documento">
+                            <RadzenDropDown @bind-Value=@modelo.TipoDocumento Data=@tiposDocumentos Name="DropDownBindValue" />
+                            <ValidationMessage For="@(()=> modelo.TipoDocumento)" />
+                        </RadzenFormField>
+                    </RadzenStack>
+
+                    <RadzenStack Style="width:30%;">
+                        <RadzenFormField Style="width:100%" Text="CUIL/CUIT">
+                            <RadzenTextBox @bind-Value="@modelo.NroFiscal" />
+                        </RadzenFormField>
+                        <ValidationMessage For="@(()=> @modelo.NroFiscal)" />
+                    </RadzenStack>
+
+                    <RadzenStack Style="width:30%;">
+                        <RadzenFormField Style="width:100%" Text="Documento">
+                            <RadzenTextBox @bind-Value="@modelo.NroDocumento" />
+                        </RadzenFormField>
+                        <ValidationMessage For="@(()=> @modelo.NroDocumento)" />
+                    </RadzenStack>
+
+                </div>
+
+
+                <!--Cargo y firma-->
+                <div class="d-flex gap-1 justify-content-between align-items-center">
+
+                    <RadzenStack Style="width:50%">
+                        <RadzenFormField Text="Cargo">
+                            <RadzenDropDown @bind-Value=@modelo.Cargo Data=@cargos Name="DropDownBindValue" Style="width:100%" />
+                            <ValidationMessage For="@(()=> @modelo.Cargo)" />
+                        </RadzenFormField>
+                    </RadzenStack>
+
+                    <div class="w-50 text-end gap-1">
+
+                        <div class="d-flex w-100 gap-1">
+
+                            <RadzenLabel class="w-100" Text="Es Firmante del Manifiesto" Component="CheckBox3" />
+                            <RadzenCheckBox @bind-Value="@modelo.EsFirmante" Name="CheckBox3" />
+                            <ValidationMessage For="@(()=> modelo.EsFirmante)" />
+
+                        </div>
+
+                        <div class="d-flex w-100 gap-1">
+
+                            <RadzenLabel class="w-100" Text="Esta Vigente" Component="CheckBox3" />
+                            <RadzenCheckBox @bind-Value="@modelo.EstaVigente" Name="CheckBox3" />
+                            <ValidationMessage For="@(()=> modelo.EstaVigente)" />
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <RadzenStack class="text-center mt-2">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" Click="@insertAutoridad" ButtonStyle="ButtonStyle.Primary">Agregar</RadzenButton>
+                </RadzenStack>
+            </div>
+        </EditForm>
+
     </div>
 
+    <!--Autoridades cargadas-->
+    <div class="card w-50 ">
+        <div class="card-header" style="color: white; font-weight: bold; text-align: center; background-color:#15153D;">
+            Autoridades
+        </div>
+        <div class="card-body">
 
-</body>
+            <RadzenGrid AllowColumnResize="true" Data="listAutoridades" TItem="AutoridadDto">
+                <Columns>
+                    <RadzenGridColumn TItem="AutoridadDto" Width="9rem" Title="Nombre y Cargo">
+                        <Template Context="data">
+                            @($"{data.Nombre}")  @($"{data.Apellido}")<br />
+                            @($"{data.Cargo}")
+                        </Template>
+                    </RadzenGridColumn>
 
-</html>
+                    <RadzenGridColumn TItem="AutoridadDto" Width="9rem" Property="NroDocumento" Title="Nro. Documento">
+                        <Template Context="data">
+                            @($"{data.TipoDocumento} {data.NroDocumento}")<br /> @($"Cuit {data.NroFiscal}")
+                        </Template>
+                    </RadzenGridColumn>
+                    <RadzenGridColumn TItem="AutoridadDto" Width="4rem" Property="EstaVigente" Title="Vigente">
+                        <Template Context="data">
+                            @((data.EstaVigente) ? "Si" : "No")
+                        </Template>
+                    </RadzenGridColumn>
+                    <RadzenGridColumn TItem="AutoridadDto" Width="4rem" Property="EsFirmante" Title="Firmante">
+                        <Template Context="data">
+                            @((data.EsFirmante) ? "Si" : "No")
+                        </Template>
+                    </RadzenGridColumn>
 
+                    <RadzenGridColumn TItem="AutoridadDto" Width="5rem">
+                        <Template Context="autoridad">
+                            <RadzenButton Icon="delete" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@(() => deleteAutoridad(autoridad))"></RadzenButton>
+                            <RadzenButton Icon="cached" ButtonStyle="Radzen.ButtonStyle.Info" Click="@(() => OpenDialogAsync(autoridad))"></RadzenButton>
+                        </Template>
+                    </RadzenGridColumn>
+                </Columns>
+
+            </RadzenGrid>
+
+        </div>
+    </div>
+
+</div>
 
 
 
 @code {
-    [Parameter] public string? balid { get; set; } = null;
 
-    [Parameter] public string? TipoEntidad { get; set; }
+    private string[] tiposDocumentos =
+      {
+            "DNI",
+            "Pasaporte"
+    };
 
+    private string[] cargos = {
+            "Presidente",
+            "Vicepresidente",
+            "Director Titular",
+            "Director Suplente",
+            "Administrador Titular",
+            "Administrador Suplente",
+            "Gerente Titular",
+            "Gerente Suplente",
+            "Consejo de Vigilancia - Titular",
+            "Consejo de Vigilancia - Suplente",
+            "Sindicatura - Titular",
+            "Sindicatura - Suplente",
+            "Comisión Fiscalizadora - Titular",
+            "Comisión Fiscalizadora - Suplente"
+    };
 
-    [CascadingParameter] IModalService Modal { get; set; } = default!;
+    ResponseDTO<BalanceDto> rsp = new();
+    [Parameter]
+    public string? TipoEntidad { get; set; }
 
-    private string idSession = "";
     private AutoridadDto modelo = new AutoridadDto();
     private List<AutoridadDto> listAutoridades = new List<AutoridadDto>();
-    private string resultNameAndSurname ="";
 
-    private string msgErrorNombre = "";
-    private string msgErrorApellido = "";
-    private string msgErrorNroIdFiscal = "";
-    private string msgErrorNroDoc = "";
-    private string msgErrorCargo = "";
-    private string msgErrorTipoDeDoc = "";
-    private string nroIdentificacionSocial = "Nro de Identificación Fiscal";
+    [Parameter]
+    public string? balid { get; set; }
 
-
-    // reference to the modal component
-    private Modal? modalRef;
-
-
-
-
-    private  Task ShowModal()
-    {
-        return modalRef.Show();
-    }
-
-    private Task HideModal()
-    {
-        return modalRef.Hide();
-    }
+    [Parameter]
+    public string sesionId { get; set; }
 
 
     protected override async Task OnInitializedAsync()
     {
-
         await Load();
-
         await base.OnInitializedAsync();
     }
-
 
     private async Task Load()
     {
         try
         {
-            var idSession = await sesionService.GetSessionBalanceId();
-
-            if (idSession!=null)
+            sesionId = await sessionStorage.GetItemAsync<string>("SessionId");
+            if (sesionId == null)
             {
-                balid = idSession;
-
-                var response = await balanceService.getBalance(idSession);
-
-                if (response.IsSuccess == true)
-                {
-
-                    try
-                    {
-                        TipoEntidad = response.Result.Caratula.Entidad.TipoEntidad;
-
-                        resultAutoridades(response.Result.Autoridades);
-
-                        StateHasChanged();
-
-                    }
-                    catch (Exception ex)
-                    {
-
-                        Console.WriteLine($"Hubo un problema con la solicitud fetch: {ex.Message}");
-                    }
-                }
+                var sesionRespuesta = await sesionService.getNewSession();
+                sesionId = sesionRespuesta.Result;
+                sessionStorage.SetItemAsync("SessionId", sesionId);
             }
             else
             {
-                Console.WriteLine($"No se ha encontrado el idSession");
+                var rst = await sesionService.getBalanceId(sesionId);
+                if (rst is not null)
+                {
+                    balid = rst;
+                    rsp = await balanceService.getBalance(balid);
+                    if (rsp.IsSuccess)
+                    {
+                        TipoEntidad = rsp.Result.Caratula.Entidad.TipoEntidad;
+                        resultAutoridades(rsp.Result.Autoridades);
+                        StateHasChanged();
+                    }
+                }
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"SessionId: Hubo un problema con la solicitud fetch: {ex.Message}");
-
         }
-
     }
 
 
     private async Task<ResponseDTO<BalanceDto>> insertAutoridad()
-
     {
-
-
-        if (checkData())
+        ResponseDTO<BalanceDto> respuesta = new();
+        try
         {
-            ResponseDTO<BalanceDto> respuesta = new();
+            AutoridadValidator autoridadValidator = new();
+            ValidationResult result = autoridadValidator.Validate(modelo);
 
-
-            try
+            if (result.IsValid)
             {
-                // Check if the current autoridad is a firmante
                 if (modelo.EsFirmante && listAutoridades.Count(a => a.EsFirmante) >= 1)
                 {
-                    ShowModal();
-                    return null;
+                    ShowDialogFirmantes();
                 }
                 else
                 {
+                    modelo.SesionId = sesionId;
                     respuesta = await autoridadService.insertAutoridad(modelo);
-
-
                     if (respuesta.IsSuccess)
                     {
 
+                        notificationService.Notify(new NotificationMessage
+                            {
+                                Severity = NotificationSeverity.Success,
+                                Duration = 3000,
+                                Summary = "Datos guardados correctamente"
+                            });
                         resultAutoridades(respuesta.Result.Autoridades);
-
                         // Limpiar los campos después de una inserción exitosa
                         cleanInputs();
-
-
                     }
                 }
-
             }
-            catch (Exception ex)
-            {
-                respuesta.Message = ex.Message;
-            }
-            return respuesta;
         }
-        else
+        catch (Exception ex)
         {
-            return null;
+            respuesta.Message = ex.Message;
+            notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Duration = 3000,
+                    Summary = "No se ha podido guardar los datos"
+                });
         }
+
+        return respuesta;
+
     }
+
+
 
 
     private void cleanInputs()
@@ -314,178 +315,133 @@
 
     private void resultAutoridades(List<AutoridadDto> listAutoridades)
     {
-        if (listAutoridades.Count > 0){
+        if (listAutoridades.Count > 0)
+        {
             this.listAutoridades = listAutoridades;
         }
-
     }
 
     private async Task<ResponseDTO<BalanceDto>> deleteAutoridad(AutoridadDto autoridad)
     {
         var respuesta = new ResponseDTO<BalanceDto>();
-        try
-        {
-            respuesta = await autoridadService.deleteAutoridad(autoridad);
+        autoridad.SesionId = sesionId;
 
-            if (respuesta.IsSuccess)
+        var alerta = await swal.FireAsync(new SweetAlertOptions
             {
+                Title = "Esta a punto de borrar a la autoridad",
+                Text = $"¿Desea eliminarlo de la lista?",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                CancelButtonText = "Cancelar",
+                ConfirmButtonText = "Aceptar"
 
-                listAutoridades = respuesta.Result.Autoridades;
+            });
+        if (alerta.IsConfirmed)
+        {
+            try
+            {
+                respuesta = await autoridadService.deleteAutoridad(autoridad);
+                if (respuesta.IsSuccess)
+                {
+                    notificationService.Notify(new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Success,
+                            Duration = 3000,
+                            Summary = "Se ha eliminado correctamente"
+                        });
+                    listAutoridades = respuesta.Result.Autoridades;
+                }
+            }
+            catch (Exception ex)
+            {
+                notificationService.Notify(new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Duration = 3000,
+                        Summary = "No se ha podido eliminar la autoridad"
+                    });
+                respuesta.Message = ex.Message;
 
             }
 
-
-        }
-        catch (Exception ex)
-        {
-            respuesta.Message = ex.Message;
         }
         return respuesta;
     }
 
-
-    private bool checkData()
+    async Task ShowDialogFirmantes()
     {
-
-        // Nombre
-        if (!string.IsNullOrEmpty(modelo.Nombre))
-        {
-            if (Validator.IsNumeric(modelo.Nombre))
+        swal.FireAsync(new SweetAlertOptions
             {
-                msgErrorNombre = "No puedes ingresar un valor numérico";
-                return false;
-            }
-            else
-            {
-                msgErrorNombre = "";
-
-            }
-        }
-        else
-        {
-            msgErrorNombre = "El campo no puede estar vacio";
-            return false;
-        }
+                Icon = "warning",
+                Title = "Error",
+                Text = "No puede haber más de 1 firmante. ",
+                ConfirmButtonText = "Aceptar"
 
 
-
-        // Apellido
-        if (!string.IsNullOrEmpty(modelo.Apellido))
-        {
-            if (Validator.IsNumeric(modelo.Apellido))
-            {
-                msgErrorApellido = "No puedes ingresar un valor numérico";
-                return false;
-            }
-            else
-            {
-                msgErrorApellido = "";
-
-            }
-        }
-        else
-        {
-            msgErrorApellido = "El campo no puede estar vacio";
-            return false;
-        }
-
-
-
-        // Apellido
-        if (!string.IsNullOrEmpty(modelo.TipoDocumento))
-        {
-            msgErrorTipoDeDoc = "";
-        }
-        else
-        {
-            msgErrorTipoDeDoc = "El campo no puede estar vacio";
-            return false;
-        }
-
-        // NroDocumento
-        if (!string.IsNullOrEmpty(modelo.NroDocumento))
-        {
-            if (!Validator.IsNumeric(modelo.NroDocumento))
-            {
-                msgErrorNroDoc = "No puedes ingresar caracteres";
-                return false;
-            }
-            else
-            {
-                msgErrorNroDoc = "";
-            }
-        }
-        else
-        {
-            msgErrorNroDoc = "El campo no puede estar vacio";
-            return false;
-        }
-
-
-        // NroFiscal
-        if (!string.IsNullOrEmpty(modelo.NroFiscal))
-        {
-            if (!Validator.IsNumeric(modelo.NroFiscal))
-            {
-                msgErrorNroIdFiscal = "No puedes ingresar caracteres";
-                return false;
-            }
-            else
-            {
-                msgErrorNroIdFiscal = "";
-            }
-        }
-        else
-        {
-            msgErrorNroIdFiscal = "El campo no puede estar vacio";
-            return false;
-        }
-
-        // Cargo
-        if (!string.IsNullOrEmpty(modelo.Cargo))
-        {
-            if (Validator.IsNumeric(modelo.Cargo))
-            {
-                msgErrorCargo = "No puedes ingresar un valor numérico";
-                return false;
-            }
-            else
-            {
-                msgErrorCargo = "";
-
-            }
-        }
-
-        else
-        {
-            msgErrorCargo = "El campo no puede estar vacio";
-            return false;
-        }
-
-
-
-
-        // Si todos los campos pasan la validación, devuelve true
-
-        msgErrorTipoDeDoc = "";
-        msgErrorNombre = "";
-        msgErrorApellido = "";
-        msgErrorNroIdFiscal = "";
-        msgErrorNroDoc = "";
-        msgErrorCargo = "";
-
-        return true;
+            });
     }
 
+    private async Task<ResponseDTO<BalanceDto>> updateAutoridad(AutoridadDto nuevoModelo)
+    {
+        ResponseDTO<BalanceDto> respuesta = new();
+        try
+        {
+            AutoridadValidator autoridadValidator = new();
+            ValidationResult result = autoridadValidator.Validate(nuevoModelo);
+
+            if (result.IsValid)
+            {
+                nuevoModelo.SesionId = sesionId;
+                respuesta = await autoridadService.updateAutoridad(nuevoModelo);
+                if (respuesta.IsSuccess)
+                {
+
+                    notificationService.Notify(new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Success,
+                            Duration = 3000,
+                            Summary = "Datos guardados correctamente"
+                        });
+
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            respuesta.Message = ex.Message;
+            notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Duration = 3000,
+                    Summary = "No se ha podido guardar los datos"
+                });
+        }
+
+        return respuesta;
+
+    }
+
+    private async Task OpenDialogAsync(AutoridadDto autoridad)
+    {
+
+        IDialogReference dialog;
 
 
+        var parameters = new DialogParameters();
+        parameters.Add("autoridad", autoridad);
 
+        dialog = DialogService.Show<UpdateAutoridad>("Editar Usuario", parameters);
 
-
-
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            var nuevoModelo = result.Data as AutoridadDto;
+            await updateAutoridad(nuevoModelo);
+        }
+    }
 }
-    
 
 
 
-    
+
+

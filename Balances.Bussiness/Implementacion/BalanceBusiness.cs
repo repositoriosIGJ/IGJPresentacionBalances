@@ -17,7 +17,7 @@ namespace Balances.Bussiness
         private ISessionService _sessionService;
         private readonly ILogger<BalanceBusiness> _logger;
         private readonly IBalanceService _balanceService;
-
+        public BalanceDto BalanceActual { get; set; }
 
         public BalanceBusiness(IMongoDbSettings _settings,
                                IMapper mapper,
@@ -34,11 +34,13 @@ namespace Balances.Bussiness
             _balanceService = balanceService;
         }
 
-        public BalanceDto BalanceActual
+        /*public BalanceDto BalanceActual
         {
             get
             {
+                
                 var responseDto = this.GetById(_sessionService.GetSessionBalanceId());
+                var responseDto = this.GetById(_sessionService.GetBalanceId());
 
                 if (responseDto.IsSuccess)
                 {
@@ -51,7 +53,7 @@ namespace Balances.Bussiness
                     _logger.LogError($"BalanceBusiness.BalanceActual: null");
                 return null;
             }
-        }
+        }*/
 
         public ResponseDTO<bool> Delete(string id)
         {
@@ -94,6 +96,7 @@ namespace Balances.Bussiness
                 var balancedto = _mapper.Map<BalanceDto>(balance);
 
                 respuesta.Result = balancedto;
+                this.BalanceActual = balancedto;
                 respuesta.IsSuccess = true;
                 respuesta.Message = "balance encontrado exitosamente";
                 _logger.LogInformation("BalanceBusiness.GetById: correctamente");
@@ -111,14 +114,14 @@ namespace Balances.Bussiness
 
         }
 
-        public ResponseDTO<IEnumerable<BalanceDto>> List()
+        public ResponseDTO<IEnumerable<BalanceDto>> List(string correlativo)
 
         {
             ResponseDTO<IEnumerable<BalanceDto>> respuesta = new ResponseDTO<IEnumerable<BalanceDto>>();
             respuesta.IsSuccess = false;
             try
             {
-                var listaBalance = _balanceService.GetAll();
+                var listaBalance = _balanceService.GetAll(correlativo);
                 //var listaBalance = _balances.Find(p => true).ToList();
                 var listabalanceDto = _mapper.Map<List<BalanceDto>>(listaBalance);
 
@@ -155,6 +158,8 @@ namespace Balances.Bussiness
                     var balancedto = _mapper.Map<BalanceDto>(balance);
                     respuesta.IsSuccess = true;
                     respuesta.Result = balance;
+
+
                     _logger.LogInformation("BalanceBusiness.Insert: correctamente");
                 }
 
@@ -201,8 +206,6 @@ namespace Balances.Bussiness
 
 
     }
-
-
 
 
 }

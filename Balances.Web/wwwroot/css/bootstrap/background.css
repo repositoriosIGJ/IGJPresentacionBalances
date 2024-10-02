@@ -1,0 +1,11 @@
+
+.bg-justicia {
+    background-color: #3A3796;
+}
+
+
+.form-control-outline {
+    border: 1px solid #ced4da; /* Color del contorno */
+    border-radius: 0.25rem; /* Bordes redondeados, si lo deseas */
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; /* Transiciones */
+}

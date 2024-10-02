@@ -3,6 +3,7 @@
     public class FileDTO
     {
 
+        public string SesionId { get; set; }
         public string Id { get; set; }
         public string Categoria { get; set; }
         public DateTime FechaCreacion { get; set; }

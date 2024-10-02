@@ -7,6 +7,7 @@ namespace Balances.DTO
     public class CaratulaDto
     {
 
+        public string SesionId { get; set; }
 
         [BsonElement("Email")]
         public string Email { get; set; }
@@ -17,6 +18,7 @@ namespace Balances.DTO
 
         public DateTime Fecha { get; set; }
 
+        public bool Rectificatorio { get; set; }
         public Entidad Entidad { get; set; }
 
         // Conversion method from Balance.Model.Caratula to CaratulaDto

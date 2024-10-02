@@ -14,6 +14,7 @@ namespace Balances.Model
         [BsonElement("Caratula")]
         public Caratula Caratula { get; set; }
 
+        //public List<Archivo> Archivos { get; set; }
         public ICollection<Archivo> Archivos { get; set; }
         public List<Autoridad> Autoridades { get; set; }
         public EstadoContable EstadoContable { get; set; }
@@ -21,5 +22,6 @@ namespace Balances.Model
         public Socios Socios { get; set; }
         public Contador Contador { get; set; }
         public Presentacion Presentacion { get; set; }
+        public string HASH { get; set; }
     }
 }

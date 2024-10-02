@@ -4,160 +4,226 @@
 @using Balances.Web.Services.Contracts;
 @using Balances.Web.Services.Implementation;
 @using System.Globalization;
-@inject IBaseSessionClientService sesionService
+@using FluentValidation.Results
+@inject ISessionClientService sesionService
 @inject IBalanceClientService balanceService
 @inject IContadorClientService contadorService
-@inject IBaseSessionClientService sessionService
+@inject ISessionClientService sessionService
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject NotificationService notificationService
 
 
-<!DOCTYPE html>
-<html lang="en">
+<Navegacion PaginaActiva="Contador" TramiteIniciado="true" balid="@balid"></Navegacion>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Datos del Contador Certificante</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
+<div class="container ">
+    <EditForm Model="modelo" class="d-flex gap-3 p-1 flex-column">
 
-<body>
+        <div class="d-flex gap-1" style="color:#15153D">
+
+            <!--socio presentante-->
+            <div class="card d-flex justify-content-between w-50">
 
 
-    <Navegacion Entidad="@($"{TipoEntidad}")" PaginaActiva="Contador" TramiteIniciado="true" balid="@balid"></Navegacion>
-   
+                <div class="card-header " style="color: white; font-weight: bold; text-align: center; background-color:#15153D;">
+                    Datos del Contador Presentante
+                </div>
 
-    <div class="container-fluid">
-            <div class="col">
-                <div class="mt-4 mb-4 d-flex justify-content-center">
-                    <div class="card w-50">
-                        <div class="card-header" style="color: #0375bc; font-weight: bold; text-align: center;">
-                            Datos del Contador Certificante
+                <div class="card-body d-flex flex-column gap-2 w-100 ">
+
+                    <FluentValidationValidator />
+
+                    <div class="d-flex gap-1 ">
+
+                        <RadzenStack Style="width:50%">
+                            <RadzenFormField Text="Nombre">
+                                <RadzenTextBox @bind-Value="@modelo.Nombre" />
+                            </RadzenFormField>
+                            <ValidationMessage For="@(()=> modelo.Nombre)" />
+
+                        </RadzenStack>
+
+
+                        <RadzenStack Style="width:50%">
+                            <RadzenFormField Text="Apellido">
+                                <RadzenTextBox @bind-Value="@modelo.Apellido" />
+                            </RadzenFormField>
+                            <ValidationMessage For="@(()=> modelo.Apellido)" />
+
+                        </RadzenStack>
+                    </div>
+
+
+                    <div class="d-flex justify-content-between w-100 gap-1">
+
+                        <RadzenStack Style="width:30%;">
+                            <RadzenFormField Text="Tipo de Documento">
+                                <RadzenDropDown @bind-Value=@modelo.TipoDocumento Data=@tiposDocumentos Name="DropDownBindValue" />
+                            </RadzenFormField>
+                            <ValidationMessage For="@(()=> modelo.TipoDocumento)" />
+                        </RadzenStack>
+
+                        <RadzenStack Style="width:30%;">
+                            <RadzenFormField Style="width:100%" Text="CUIL/CUIT">
+                                <RadzenTextBox @bind-Value="@modelo.NroFiscal" />
+                            </RadzenFormField>
+                            <ValidationMessage For="@(()=> @modelo.NroFiscal)" />
+                        </RadzenStack>
+
+                        <RadzenStack Style="width:30%;">
+                            <RadzenFormField Style="width:100%" Text="Documento">
+                                <RadzenTextBox @bind-Value="@modelo.NroDocumento" />
+                            </RadzenFormField>
+                            <ValidationMessage For="@(()=> @modelo.NroDocumento)" />
+                        </RadzenStack>
+
+                    </div>
+
+
+                    <div class="card w-100">
+
+                        <div class="card-header " style="font-weight: 400;">
+                            Datos de la Matricula
                         </div>
-                        <div class="card-body">
-                            <div>
-                                <div class="form-group">
-                                    <label for="contadorNombre">Nombre</label>
-                                    <input type="text" class="form-control" id="contadorNombre" :value="form.nombre"  required @bind="modelo.Nombre" @onblur=postContador>
-                                    <small id="msgError" class="text-danger">@msgErrorNombre</small>
-                                </div>
 
-                                <div class="form-group">
-                                    <label for="ContadorApellido">Apellido</label>
-                                    <input type="text" class="form-control" id="ContadorApellido" :value="form.apellido"  required @bind="modelo.Apellido" @onblur=postContador>
-                                    <small id="msgError" class="text-danger">@msgErrorApellido</small>
-                                </div>
+                        <div class="card-body d-flex gap-1 w-100">
+                            <RadzenFormField class="w-25" Text="Tomo">
+                                <RadzenTextBox @bind-Value="@modelo.Tomo" />
+                            </RadzenFormField>
+                            <ValidationMessage For="@(()=> @modelo.Tomo)" />
 
 
-                            <div class="form-group">
-                                <label for="tipoDocumento">Tipo de Documento</label>
-                                <select class="form-select" @bind="modelo.TipoDocumento" @onblur="postContador">
-                                    <option value="">--- Seleccionar un tipo de documento ---</option>
-                                    <option value="DNI">DNI</option>
-                                    <option value="Pasaporte">Pasaporte</option>
-                                    <option value="Cedula">Cédula</option>
-                                </select>
-                                <small id="msgErrorTipoDocumento" class="text-danger">@msgErrorTipoDocumento</small>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="contadorNroDocumento">Número de Documento</label>
-                                <input type="text" class="form-control" id="contadorNroDocumento" :value="form.nroDocumento"  required @bind="modelo.NroDocumento" @onblur=postContador>
-                                <small id="msgError" class="text-danger">@msgErrorNroDoc</small>
-
-                            </div>
-
-                            <div class="form-group">
-                                <label for="contadorNuFiscal">Nro. de Identificación Fiscal</label>
-                                <input type="text" class="form-control" id="contadorNuFiscal" :value="form.nroFiscal"  required @bind="modelo.NroFiscal" @onblur=postContador>
-                                <small id="msgError" class="text-danger">@msgErrorNroIdFiscal</small>
-
-
-                            </div>
-
-                            <div class="form-group">
-                                <label for="tomo">Tomo</label>
-                                <input type="text" class="form-control" id="tomo" :value="form.tomo"  required @bind="modelo.Tomo" @onblur=postContador>
-                                <small id="msgError" class="text-danger">@msgErrorTomo</small>
-
-                            </div>
-
-                            <div class="form-group">
-                                <label for="folio">Folio</label>
-                                <input type="text" class="form-control" id="folio" :value="form.folio"  required @bind="modelo.Folio" @onblur=postContador>
-                                <small id="msgError" class="text-danger">@msgErrorFolio</small>
-
-                            </div>
-
-                            <div class="form-group">
-                                <label for="feInformeAuditorExt">Fecha del Informe del Auditor Externo</label>
-                                <input type="date" class="form-control" id="feInformeAuditorExt" :value="form.fechaInformeAuditorExt"  required @bind="modelo.FechaInformeAuditorExt" @onblur=postContador>
-                                <small id="msgErrorFechaInformeAuditorExt" class="text-danger">@msgErrorFechaInformeAuditorExt</small>
-
-                            </div>
-
-                            <div class="form-group">
-                                <label for="nroLegalInfoAudExt">Nro. de Legalización del Informe del Auditor Externo</label>
-                                <input type="text" class="form-control" id="nroLegalInfoAudExt" :value="form.nroLegalInfoAudExt" required @bind="modelo.NroLegalInfoAudExt" @onblur=postContador>
-                                <small id="msgError" class="text-danger">@msgErrorNroLegInf</small>
-
-                            </div>
-
-
+                            <RadzenFormField class="w-25" Text="Folio">
+                                <RadzenTextBox @bind-Value="@modelo.Folio" />
+                            </RadzenFormField>
+                            <ValidationMessage For="@(()=> @modelo.Folio)" />
 
                         </div>
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+            <!--SOCIO ESTUDIO-->
+            <div class="card d-flex justify-content-between w-50">
+
+
+                <div class="card-header" style="color: white; font-weight: bold; text-align: center; background-color:#15153D;">
+                    Datos del Estudio
+                </div>
+
+                <div class="card-body d-flex flex-column gap-2 align-items-center ">
+
+                    <RadzenStack>
+                        <RadzenLabel Style="font-size:large; font-weight:700" Component="CheckBox3">
+                            <RadzenCheckBox @bind-Value="@modelo.EsSocioEstudio" Name="CheckBox3" />
+                            Actúa en carácter de Socio de Estudio Contable
+                        </RadzenLabel>
+                        <ValidationMessage For="@(()=> modelo.EsSocioEstudio)" />
+
+
+                    </RadzenStack>
+
+
+                    <div class="d-flex gap-1 w-100 ">
+
+                        <RadzenStack class="w-25">
+                            <RadzenFormField Text="Tomo">
+                                <RadzenTextBox @bind-Value="@modelo.TomoEstudio" Disabled="@(modelo.EsSocioEstudio ? false : true)" />
+                            </RadzenFormField>
+                            <ValidationMessage For="@(()=> @modelo.TomoEstudio)" />
+                        </RadzenStack>
+
+
+                        <RadzenStack class="w-25">
+                            <RadzenFormField Text="Folio">
+                                <RadzenTextBox @bind-Value="@modelo.FolioEstudio" Disabled="@(modelo.EsSocioEstudio ? false : true)" />
+                            </RadzenFormField>
+                            <ValidationMessage For="@(()=> @modelo.FolioEstudio)" />
+                        </RadzenStack>
                     </div>
                 </div>
 
             </div>
+
         </div>
-    </div>
+
+        <!-- Informe-->
+        <div class="card">
+
+            <div class="card-header" style="color: white; font-weight: bold; text-align: center; background-color:#15153D;">
+                Datos del informe del Auditor Externo
+            </div>
+
+            <div class="card-body">
+
+                <div class="d-flex">
+                    <div class="w-50">
+
+                        <RadzenFormField Text="Fecha" class="mt-1">
+                            <RadzenDatePicker @bind-Value="@modelo.FechaInformeAuditorExt" DateFormat="dd/MM/yyyy" Name="DatePickerTimeOnlyType" Placeholder="dd/mm/yyyy" />
+                            <ValidationMessage For="@(()=> @modelo.FechaInformeAuditorExt)" />
+                        </RadzenFormField>
 
 
-</body>
+                        <RadzenFormField Text="Nro. de Legalización" class="mt-1">
+                            <RadzenTextBox @bind-Value="@modelo.NroLegalInfoAudExt" />
+                            <ValidationMessage For="@(()=> @modelo.NroLegalInfoAudExt)" />
+                        </RadzenFormField>
 
-</html>
+                    </div>
+
+                    <RadzenFormField Text="Opinion" class="mt-1 w-50">
+
+                        <select class="form-select" @bind="modelo.Opinion">
+                            <option value="">--- Seleccionar una opinion ---</option>
+                            <option value="Favorable">Favorable</option>
+                            <option value="Desfavorable">Desfavorable</option>
+
+                        </select>
+                    </RadzenFormField>
+                    <ValidationMessage For="@(()=> modelo.Opinion)" />
+
+                </div>
+
+                <RadzenFormField Text="Observaciones" Style="width:100%">
+                    <RadzenTextArea @bind-Value="@modelo.Observaciones" />
+                </RadzenFormField>
+            </div>
+        </div>
+
+        <RadzenStack class="m-auto text-center">
+            <RadzenButton ButtonType="Radzen.ButtonType.Submit" Click="@postContador" ButtonStyle="ButtonStyle.Primary">Guardar</RadzenButton>
+        </RadzenStack>
+
+    </EditForm>
+</div>
 
 
 @code {
-    [Parameter] public string? TipoEntidad { get; set; }
+    [Parameter]
+    public string? TipoEntidad { get; set; }
 
+    private string[] tiposDocumentos =
+    {
+            "DNI",
+            "Pasaporte"
+    };
+    [Parameter]
+    public string? balid { get; set; }
 
     [Parameter]
-    public string? balid { get; set; } = null;
+    public string sesionId { get; set; }
 
-    private string[] tiposDocumentos = { "DNI", "Pasaporte", "Cédula" };
-    private string tipoDocSeleccionado = "";
-
-
-    private ResponseDTO<BalanceDto> modeloRespuesta = new ResponseDTO<BalanceDto>();
     private ContadorDto modelo = new ContadorDto();
-
-
-    private string msgErrorNombre = "";
-    private string msgErrorApellido = "";
-    private string msgErrorNroDoc = "";
-    private string msgErrorFolio = "";
-    private string msgErrorTomo = "";
-    private string msgErrorNroLegInf = "";
-    private string msgErrorNroIdFiscal = "";
-    private string msgErrorFechaInformeAuditorExt = "";
-    private string msgErrorTipoDocumento = "";
-
-
 
     protected override async Task OnInitializedAsync()
     {
-
         await Load();
-
         await base.OnInitializedAsync();
-    }
-
-
-    private bool IsSelected(string value)
-    {
-        return modelo.TipoDocumento == value;
     }
 
 
@@ -167,39 +233,46 @@
         ResponseDTO<BalanceDto> rsp = new();
         try
         {
-
-            var idSession = await sesionService.GetSessionBalanceId();
-
-            balid = idSession;
-
-            rsp = await balanceService.getBalance(idSession);
-
-            if (rsp.IsSuccess)
+            sesionId = await sessionStorage.GetItemAsync<string>("SessionId");
+            if (sesionId == null)
             {
-
-
-                TipoEntidad = rsp.Result.Caratula.Entidad.TipoEntidad;
-                modelo.id = rsp.Result.Id;
-                modelo.Nombre = rsp.Result.Contador.Nombre;
-                modelo.Apellido = rsp.Result.Contador.Apellido;
-                modelo.TipoDocumento = rsp.Result.Contador.TipoDocumento;
-                modelo.NroDocumento = rsp.Result.Contador.NroDocumento;
-                modelo.NroFiscal = rsp.Result.Contador.NroFiscal;
-                modelo.Tomo = rsp.Result.Contador.Tomo;
-                modelo.Folio = rsp.Result.Contador.Folio;
-                modelo.FechaInformeAuditorExt = rsp.Result.Contador.FechaInformeAuditorExt;
-                modelo.NroLegalInfoAudExt = rsp.Result.Contador.NroLegalInfoAudExt;
-
-
+                var sesionRespuesta = await sesionService.getNewSession();
+                sesionId = sesionRespuesta.Result;
+                await sessionStorage.SetItemAsync("SessionId", sesionId);
             }
             else
             {
-                rsp.Message = $"error al obtener el contador {rsp.Message}";
+                var rst = await sesionService.getBalanceId(sesionId);
+                if (rst is not null)
+                {
+                    balid = rst;
+                    rsp = await balanceService.getBalance(balid);
+                    if (rsp.IsSuccess)
+                    {
+                        TipoEntidad = rsp.Result.Caratula.Entidad.TipoEntidad;
+                        modelo.Nombre = rsp.Result.Contador.Nombre;
+                        modelo.Apellido = rsp.Result.Contador.Apellido;
+                        modelo.TipoDocumento = rsp.Result.Contador.TipoDocumento;
+                        modelo.NroDocumento = rsp.Result.Contador.NroDocumento;
+                        modelo.NroFiscal = rsp.Result.Contador.NroFiscal;
+                        modelo.Tomo = rsp.Result.Contador.Tomo;
+                        modelo.Folio = rsp.Result.Contador.Folio;
+                        modelo.FechaInformeAuditorExt = rsp.Result.Contador.FechaInformeAuditorExt;
+                        modelo.NroLegalInfoAudExt = rsp.Result.Contador.NroLegalInfoAudExt;
+                        modelo.EsSocioEstudio = rsp.Result.Contador.EsSocioEstudio;
+                        modelo.Observaciones = rsp.Result.Contador.Observaciones;
+                        modelo.Opinion = rsp.Result.Contador.Opinion;
+                        modelo.TomoEstudio = rsp.Result.Contador.TomoEstudio;
+                        modelo.FolioEstudio = rsp.Result.Contador.FolioEstudio;
+                    }
+                    else
+                    {
+                        rsp.Message = $"error al obtener el contador {rsp.Message}";
+                    }
+                }
+
+                StateHasChanged();
             }
-
-
-            StateHasChanged();
-
         }
         catch (Exception ex)
         {
@@ -209,18 +282,34 @@
         return rsp;
     }
 
-
     private async Task<ResponseDTO<BalanceDto>> postContador()
     {
         ResponseDTO<BalanceDto> respuesta = new();
         respuesta.IsSuccess = false;
         try
         {
-            if (checkData())
+
+            ContadorValidator contadorValidator = new();
+
+            modelo.SesionId = sesionId;
+
+
+            ValidationResult result = contadorValidator.Validate(modelo);
+
+            if (result.IsValid)
             {
-                //modelo.TipoDocumento = tipoDocSeleccionado;
+
                 respuesta = await contadorService.postContador(modelo);
-                respuesta.IsSuccess = true;
+                if (respuesta.IsSuccess)
+                {
+
+                    notificationService.Notify(new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Success,
+                            Duration = 3000,
+                            Summary = "Datos guardados correctamente"
+                        });
+                }
 
             }
 
@@ -229,178 +318,15 @@
         catch (Exception ex)
         {
             respuesta.Message = ex.Message;
+            notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Duration = 3000,
+                    Summary = "No se pudieron guardar los datos"
+                });
 
         }
         return respuesta;
 
     }
-
-
-
-
-    private bool checkData()
-    {
-
-        // Apellido
-        if (!string.IsNullOrEmpty(modelo.Nombre))
-        {
-            if (Validator.IsNumeric(modelo.Nombre))
-            {
-                msgErrorNombre = "No puedes ingresar un valor numérico";
-                return false;
-            }
-            else
-            {
-                msgErrorNombre = "";
-
-            }
-        }
-        else
-        {
-            msgErrorNombre = "El campo no puede estar vacio";
-            return false;
-        }
-
-
-
-        // Apellido
-        if (!string.IsNullOrEmpty(modelo.Apellido))
-        {
-            if (Validator.IsNumeric(modelo.Apellido))
-            {
-                msgErrorApellido = "No puedes ingresar un valor numérico";
-                return false;
-            }
-            else
-            {
-                msgErrorApellido = "";
-
-            }
-        }
-        else
-        {
-            msgErrorApellido = "El campo no puede estar vacio";
-            return false;
-        }
-
-        // TipoDocumento
-        if (string.IsNullOrEmpty(modelo.TipoDocumento))
-        {
-            msgErrorTipoDocumento = "Debes seleccionar un tipo de documento";
-            return false;
-        }
-        else
-        {
-            msgErrorTipoDocumento = "";
-        }
-
-        // NroDocumento
-        if (!string.IsNullOrEmpty(modelo.NroDocumento))
-        {
-            if (!Validator.IsNumeric(modelo.NroDocumento))
-            {
-                msgErrorNroDoc = "No puedes ingresar caracteres en el campo NroDocumento";
-                return false;
-            }
-            else
-            {
-                msgErrorNroDoc = "";
-            }
-        }
-        else
-        {
-            msgErrorNroDoc = "El campo no puede estar vacio";
-            return false;
-        }
-
-
-        // NroFiscal
-        if (!string.IsNullOrEmpty(modelo.NroFiscal))
-        {
-            if (!Validator.IsNumeric(modelo.NroFiscal))
-            {
-                msgErrorNroIdFiscal = "No puedes ingresar caracteres en el campo NroFiscal";
-                return false;
-            }
-            else
-            {
-                msgErrorNroIdFiscal = "";
-            }
-        }
-
-        else
-        {
-            msgErrorNroIdFiscal = "El campo no puede estar vacio";
-            return false;
-        }
-
-        // Tomo
-        if (!string.IsNullOrEmpty(modelo.Tomo))
-        {
-            msgErrorTomo = "";
-        }
-        else
-        {
-            msgErrorTomo = "El campo no puede estar vacio";
-            return false;
-        }
-
-        // Folio
-        if (!string.IsNullOrEmpty(modelo.Folio))
-        {
-            msgErrorFolio = "";
-        }
-        else
-        {
-            msgErrorFolio = "El campo no puede estar vacio";
-            return false;
-        }
-
-        // FechaInformeAuditorExt
-        if (modelo.FechaInformeAuditorExt != null)
-        {
-            msgErrorFechaInformeAuditorExt = "";
-
-        }
-        else
-        {
-            msgErrorFechaInformeAuditorExt = "Seleccioná la fecha correspondiente";
-            return false;
-        }
-
-
-        // NroLegalInfoAudExt
-        if (!string.IsNullOrEmpty(modelo.NroLegalInfoAudExt))
-        {
-            if (!Validator.IsNumeric(modelo.NroLegalInfoAudExt))
-            {
-                msgErrorNroLegInf = "No puedes ingresar caracteres en el campo NroLegalInfoAudExt";
-                return false;
-            }
-            else
-            {
-                msgErrorNroLegInf = "";
-            }
-        }
-        else
-        {
-            msgErrorNroLegInf = "El campo no puede estar vacio";
-            return false;
-        }
-
-        msgErrorNombre = "";
-        msgErrorTomo = "";
-        msgErrorApellido = "";
-        msgErrorNroIdFiscal = "";
-        msgErrorNroLegInf = "";
-        msgErrorNroDoc = "";
-        msgErrorTipoDocumento = "";
-        msgErrorFechaInformeAuditorExt = "";
-
-
-        return true;
-    }
-
-
-
 }

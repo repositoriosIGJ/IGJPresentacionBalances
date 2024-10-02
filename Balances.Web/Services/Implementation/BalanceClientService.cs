@@ -8,9 +8,10 @@ namespace Balances.Web.Services.Implementation
     {
         private readonly HttpClient _httpClient;
 
-        public BalanceClientService(HttpClient httpClient)
+        public BalanceClientService(HttpClient httpClient/*, SessionClientService session*/)
         {
             _httpClient = httpClient;
+            //session.SessionId = session.SessionId;
         }
 
         public async Task<ResponseDTO<BalanceDto>> getBalance(string id)
@@ -18,6 +19,13 @@ namespace Balances.Web.Services.Implementation
             var balance = await _httpClient.GetFromJsonAsync<ResponseDTO<BalanceDto>>($"Balance/{id}");
 
             return balance;
+        }
+
+        public async Task<ResponseDTO<List<BalanceDto>>> listBalances(string correlativo)
+        {
+            var listaBalances = await _httpClient.GetFromJsonAsync<ResponseDTO<List<BalanceDto>>>($"Balance/GetAll/{correlativo}");
+
+            return listaBalances;
         }
     }
 }

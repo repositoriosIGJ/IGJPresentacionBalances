@@ -3,368 +3,446 @@
 @using Balances.Utilities;
 @using Balances.Web.Services.Contracts;
 @using Balances.Web.Services.Implementation;
+@using FluentValidation.Results
+
 
 @inject ISociosClientService socioService;
 @inject IBalanceClientService balanceService
-@inject IBaseSessionClientService sessionService
+@inject ISessionClientService sesionService
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject SweetAlertService swal;
+@inject NotificationService notificationService
+@inject IDialogService DialogService;
 
 
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estado Contable</title>
-    <!-- Agrega los enlaces a los estilos de Bootstrap y otros recursos aquí -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-
-    <Navegacion Entidad="@($"{TipoEntidad}")" PaginaActiva="Integrante" TramiteIniciado="true" balid="@balid"></Navegacion>
-
-    <!---------------------------------------------------------------->
-    <!-- Tabs -->
-    <div class="container-fluid mt-4">
-        <ul class="nav nav-tabs" style="width: 1200px;">
-            <li class="nav-item">
-                <a class="nav-link" href="/Integrante">Integrante Humano</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="/IntegranteJuridico">Integrante Jurídico</a>
-            </li>
-        </ul>
-      
-    </div>
+<Navegacion PaginaActiva="Integrante" TramiteIniciado=true balid="@balid"></Navegacion>
 
 
-    <!-- Formulario de Datos del Integrante -->
-    <div class="container-fluid mt-4">
-        <div class="row">
-            <div class="col-md-6">
-                <form class="card">
-                    <div class="card-header" style="color: #0375bc; font-weight: bold; text-align: center;">
-                        Datos del Integrante
-                    </div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label>Denominación</label>
-                            <input type="text" class="form-control" @bind="modelPersonaJuridica.Denominacion">
-                            <small id="msgError" class="text-danger">@msgErrorDenominacion</small>
+<NavegacionIntegrantes PaginaActiva="IntegranteJuridico" TramiteIniciado=true balid="@balid"></NavegacionIntegrantes>
 
-                        </div>
-                        <div class="form-group">
-                            <label>Nro. de Identificación Fiscal</label>
-                            <input type="text" class="form-control" id="accionistaNombre" @bind="modelPersonaJuridica.NroFiscal">
-                            <small id="msgError" class="text-danger">@msgErrorCuit</small>
 
-                        </div>
+<div class="container ">
 
-                        <div class="form-group">
-                            <label>Cuotas</label>
-                            <input type="text" class="form-control" id="accionistaNombre" @bind="modelPersonaJuridica.Cuotas">
-                            <small id="msgError" class="text-danger">@msgErrorCuotas</small>
 
-                        </div>
-                        <div class="form-group">
-                            <label>Votos</label>
-                            <input type="text" class="form-control" id="accionistaNombre" @bind="modelPersonaJuridica.Votos">
-                            <small id="msgError" class="text-danger">@msgErrorVotos</small>
+    <div class="d-flex gap-1" style="color:#15153D">
 
-                        </div>
-                        <!-- Rest of the form content -->
-                        <div class="form-group text-center mt-4">
-                            <button type="button" class="btn btn-primary w-100" @onclick="addPersonaJuridica">Agregar</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="col-md-6">
-                <!-- Lista de Integrantes -->
-                <div class="card">
-                    <div class="card-header" style="color: #0375bc; font-weight: bold; text-align: center;">
-                        Integrantes
-                    </div>
-                    <div class="card-body">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                   
-                                    <th scope="col">Denominación</th>
-                                    <th scope="col">Nro Documento</th>
-                                    <th scope="col">CUIT</th>
-                                    <th scope="col">Cantidad</th>
-                                    <th scope="col">Acción</th>
-                                </tr>
-                            </thead>
-                            @foreach (var personaJuridica in listPersonaJuridica)
-                            {
-                                <tbody>
-                                    <tr>
-                                       
-                                        <td>@personaJuridica.Denominacion</td>
-                                        <td>@personaJuridica.NroFiscal</td>
-                                        <td>@personaJuridica.NroFiscal</td>
-                                        <td>@personaJuridica.Cuotas / @personaJuridica.Votos </td>
 
-                                        <td>
-                                            <button type="button" class="btn btn-danger" @onclick="() => deletePersonaJuridica(personaJuridica)">Eliminar</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
+        <!--Formulario persona juridica-->
+        <div class="card d-flex justify-content-between w-50">
+            <EditForm Model="@model">
 
-                            }
-                        </table>
-                    </div>
+                <div class="card-header" style="background-color: #15153D; color:#FFF; font-weight: bold; text-align: center;">
+                    Datos de Persona Jurídica
                 </div>
+
+                <div class="card-body d-flex flex-column gap-1 w-100 ">
+
+                    <FluentValidationValidator />
+
+                    <div class="d-flex gap-1 ">
+
+                        <RadzenStack Style="width:50%">
+                            <RadzenFormField Text="Denominacion">
+                                <RadzenTextBox @bind-Value="@model.Denominacion" />
+                            </RadzenFormField>
+                            <ValidationMessage For="@(()=> model.Denominacion)" />
+
+                        </RadzenStack>
+
+
+                        <RadzenStack Style="width:50%">
+                            <RadzenFormField Text="Nro. de CUIT">
+                                <RadzenTextBox @bind-Value="@model.NroFiscal" />
+                            </RadzenFormField>
+                            <ValidationMessage For="@(()=> model.NroFiscal)" />
+
+                        </RadzenStack>
+                    </div>
+
+
+                    <div class="d-flex gap-1 ">
+
+                        <RadzenStack Style="width:50%">
+                            <RadzenFormField Text="Pais">
+                                <RadzenDropDown @bind-Value="@model.Pais" Data=@Paises Name="DropDownBindValue" Style="width:100%" Change="OnCountryChanged" />
+                            </RadzenFormField>
+                            <ValidationMessage For="@(()=> model.Pais)" />
+                        </RadzenStack>
+
+                        <RadzenStack Style="width:50%">
+                            <RadzenFormField Text="Jurisdicción">
+                                <RadzenDropDown @bind-Value=@model.Jurisdiccion Data=@Juridisccion Name="DropDownBindValue" Style="width:100%" Disabled=@isJurisdiccionDisabled />
+                            </RadzenFormField>
+                            <ValidationMessage For="@(()=> model.Jurisdiccion)" />
+                        </RadzenStack>
+                    </div>
+
+                    <div class="d-flex justify-content-between w-100 gap-1">
+
+                        <RadzenStack Style="width:30%">
+                            <RadzenFormField Text="Acciones/Cuotas">
+                                <RadzenTextBox @bind-Value="@model.Cuotas" />
+                            </RadzenFormField>
+                            <ValidationMessage For="@(()=> model.Cuotas)" />
+                        </RadzenStack>
+
+                        <RadzenStack Style="width:30%">
+                            <RadzenFormField Text="Votos">
+                                <RadzenTextBox @bind-Value="@model.Votos" />
+                            </RadzenFormField>
+                            <ValidationMessage For="@(()=> model.Votos)" />
+                        </RadzenStack>
+                        <RadzenStack Style="width:30%">
+                            <RadzenFormField Text="Valor Nominal">
+                                <RadzenTextBox @bind-Value="@model.ValorNominal" />
+                            </RadzenFormField>
+                            <ValidationMessage For="@(()=> model.ValorNominal)" />
+                        </RadzenStack>
+                    </div>
+
+                    <RadzenStack class="mt-4 mb-2">
+                        <RadzenButton ButtonType=Radzen.ButtonType.Submit ButtonStyle="ButtonStyle.Primary" Click="@InsertPersonaJuridica">Agregar</RadzenButton>
+                    </RadzenStack>
+
+                </div>
+            </EditForm>
+        </div>
+
+        <!-- Lista de Integrantes -->
+        <div class="card d-flex justify-content-between w-50">
+
+            <div class="card-header" style="background-color: #15153D; color:#FFF; font-weight: bold; text-align: center;">
+                Listado de Persona Jurídica
             </div>
 
+            <div class="card-body">
+                <RadzenGrid @ref=grid Data="listPersonaJuridica" TItem="PersonaJuridicaDto">
+                    <Columns>
+
+                        <RadzenGridColumn TItem="PersonaJuridicaDto" Width="9rem" Title="Razon Social">
+                            <Template Context="data">
+                                @($"{data.Denominacion}")
+                            </Template>
+                        </RadzenGridColumn>
+                        <RadzenGridColumn TItem="PersonaJuridicaDto" Width="8rem" Title="CUIT">
+                            <Template Context="data">
+                                @($"{data.NroFiscal}")
+                            </Template>
+                        </RadzenGridColumn>
+                        <RadzenGridColumn TItem="PersonaJuridicaDto" Width="4rem" Property="Cuotas" Title="ACC/CUO" />
+                        <RadzenGridColumn TItem="PersonaJuridicaDto" Width="4rem" Property="Votos" Title="Votos" />
+                        <RadzenGridColumn TItem="PersonaJuridicaDto" Width="5rem">
+                            <Template Context="personaJuridica">
+                                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="@(() => deletePersonaJuridica(personaJuridica))"></RadzenButton>
+                                <RadzenButton Icon="cached" ButtonStyle="Radzen.ButtonStyle.Info" Click="@(() => OpenDialogAsync(personaJuridica))"></RadzenButton>
+                            </Template>
+                        </RadzenGridColumn>
+
+
+                    </Columns>
+                </RadzenGrid>
+            </div>
         </div>
+
     </div>
 
-
-
-</body>
-
-</html>
+</div>
 
 
 @code {
-    [Parameter] public string? TipoEntidad { get; set; }
+    RadzenGrid<PersonaJuridicaDto> grid;
+
 
     [Parameter]
-    public string? balid { get; set; } = null;
+    public string? TipoEntidad { get; set; }
 
-    private string idSession = "";
-    private PersonaJuridicaDto modelPersonaJuridica = new PersonaJuridicaDto();
+    private PersonaJuridicaDto model = new PersonaJuridicaDto();
     private List<PersonaJuridicaDto> listPersonaJuridica = new List<PersonaJuridicaDto>();
 
 
+    [Parameter]
+    public string? balid { get; set; }
 
-    private string msgErrorDenominacion = "";
-    private string msgErrorCuit = "";
-    private string msgErrorCuotas = "";
-    private string msgErrorVotos = "";
+    [Parameter]
+    public string sesionId { get; set; }
+
+    public List<string> Paises { get; set; } = new List<string>();
+
+    private List<string> Juridisccion { get; set; } = new List<string>();
+
+    private bool isJurisdiccionDisabled = true;
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadJsonCountry();
+        await LoadJsonProvince();
         await Load();
-
         await base.OnInitializedAsync();
+    }
+
+    private async Task LoadJsonProvince()
+    {
+        try
+        {
+            var provincias = await socioService.GetAllProvince();
+
+
+            Juridisccion.AddRange(provincias);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+
+    public async Task LoadJsonCountry()
+    {
+        try
+        {
+            var countries = await socioService.GetAllCountries();
+
+            // Ordenar los nombres de los países en orden ascendente
+            countries.Sort();
+
+            foreach (var name in countries)
+            {
+                Paises.Add(name);
+            }
+        }
+
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+
+    }
+
+    private void OnCountryChanged(object value)
+    {
+        string selectedCountry = value.ToString()!;
+        if (selectedCountry == "Argentina")
+        {
+            isJurisdiccionDisabled = false;
+            model.Jurisdiccion = "";
+        }
+        else
+        {
+            isJurisdiccionDisabled = true;
+            model.Jurisdiccion = "Extranjero";
+
+        }
     }
 
     private async Task Load()
     {
+        ResponseDTO<BalanceDto> rsp = new();
         try
         {
-            var idSession = await sessionService.GetSessionBalanceId();
+            sesionId = await sessionStorage.GetItemAsync<string>("SessionId");
 
-            if (idSession!=null)
+            if (sesionId == null)
             {
-
-                balid = idSession;
-
-                var response = await balanceService.getBalance(idSession);
-
-                if (response.IsSuccess == true)
-                {
-
-                    try
-                    {
-                        TipoEntidad = response.Result.Caratula.Entidad.TipoEntidad;
-
-                        resultPersonaJuridica(response.Result.Socios.PersonasJuridicas);
-
-                        StateHasChanged();
-
-                    }
-                    catch (Exception ex)
-                    {
-
-                        Console.WriteLine($"Hubo un problema con la solicitud fetch: {ex.Message}");
-                    }
-                }
+                var sesionRespuesta = await sesionService.getNewSession();
+                sesionId = sesionRespuesta.Result!;
+                await sessionStorage.SetItemAsync("SessionId", sesionId);
             }
             else
             {
-                Console.WriteLine($"No se ha encontrado el idSession");
+                var rst = await sesionService.getBalanceId(sesionId);
+                if (rst is not null)
+                {
+                    balid = rst;
+                    rsp = await balanceService.getBalance(balid);
+                    if (rsp.IsSuccess)
+                    {
+                        TipoEntidad = rsp.Result.Caratula.Entidad.TipoEntidad;
+                        resultPersonaJuridica(rsp.Result.Socios.PersonasJuridicas);
+                        await grid.Reload();
+                        StateHasChanged();
+                    }
+                }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"SessionId: Hubo un problema con la solicitud fetch: {ex.Message}");
-
+            rsp.Message = $"SessionId: Hubo un problema con la solicitud fetch: {ex.Message}";
         }
-
     }
 
-    private async Task<ResponseDTO<BalanceDto>> addPersonaJuridica()
-    {
-        if (checkData())
-        {
-            ResponseDTO<BalanceDto> respuesta = new();
 
-            try
+    private async Task<ResponseDTO<BalanceDto>> InsertPersonaJuridica()
+    {
+
+        ResponseDTO<BalanceDto> respuesta = new();
+        try
+        {
+
+            model.SesionId = sesionId;
+
+
+            PersonaJuridicaValidator personaJuridicaValidator = new();
+            ValidationResult result = personaJuridicaValidator.Validate(model);
+
+            if (result.IsValid)
             {
 
-                respuesta = await socioService.insertPersonaJuridica(modelPersonaJuridica);
-
+                respuesta = await socioService.insertPersonaJuridica(model);
 
                 if (respuesta.IsSuccess)
                 {
-
-                    resultPersonaJuridica(respuesta.Result.Socios.PersonasJuridicas);
-
-                    // Limpiar los campos después de una inserción exitosa
+                    notificationService.Notify(new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Success,
+                            Duration = 3000,
+                            Summary = "Datos guardados correctamente"
+                        });
+                    resultPersonaJuridica(respuesta.Result!.Socios.PersonasJuridicas);
                     cleanInputsJuridica();
-
-
+                    await grid.Reload();
+                    StateHasChanged();
                 }
-
             }
-            catch (Exception ex)
-            {
-                respuesta.Message = ex.Message;
-            }
-            return respuesta;
         }
-        else
+        catch (Exception ex)
         {
-            return null;
+            notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Duration = 3000,
+                    Summary = "No se ha podido guardar los datos"
+                });
+            respuesta.Message = ex.Message;
         }
+
+        return respuesta;
+
     }
 
     private void cleanInputsJuridica()
     {
         // Restablecer los valores de los campos a su estado inicial o vacío
-        modelPersonaJuridica = new PersonaJuridicaDto();
+        model = new PersonaJuridicaDto();
     }
 
     private void resultPersonaJuridica(List<PersonaJuridicaDto> listPersonaJuridica)
     {
         this.listPersonaJuridica = listPersonaJuridica;
-
     }
 
     private async Task<ResponseDTO<BalanceDto>> deletePersonaJuridica(PersonaJuridicaDto personaJuridicaDto)
     {
         var respuesta = new ResponseDTO<BalanceDto>();
-        try
-        {
-            respuesta = await socioService.deletePersonaJuridica(personaJuridicaDto);
 
-            if (respuesta.IsSuccess)
+        var alerta = await swal.FireAsync(new SweetAlertOptions
             {
+                Title = "Esta a punto de borrar al integrante Juridico",
+                Text = $"¿Desea eliminarlo de la lista?",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                CancelButtonText = "Cancelar",
+                ConfirmButtonText = "Aceptar"
 
-                listPersonaJuridica = respuesta.Result.Socios.PersonasJuridicas;
+            });
+        if (alerta.IsConfirmed)
+        {
+            try
+            {
+                personaJuridicaDto.SesionId = sesionId;
+                respuesta = await socioService.deletePersonaJuridica(personaJuridicaDto);
 
+                if (respuesta.IsSuccess)
+                {
+                    notificationService.Notify(new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Success,
+                            Duration = 3000,
+                            Summary = "Se ha eliminado correctamente"
+                        });
+
+                    listPersonaJuridica.Remove(personaJuridicaDto);
+                    await grid.Reload();
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                notificationService.Notify(new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Duration = 3000,
+                        Summary = "No se ha podido eliminar"
+                    });
+                respuesta.Message = ex.Message;
             }
 
+        }
 
+
+        return respuesta;
+    }
+
+    private async Task<ResponseDTO<BalanceDto>> updatePersonaJuridica(PersonaJuridicaDto nuevoModelo)
+    {
+        ResponseDTO<BalanceDto> respuesta = new();
+        try
+        {
+            PersonaJuridicaValidator personaValidator = new();
+            ValidationResult result = personaValidator.Validate(nuevoModelo);
+
+            if (result.IsValid)
+            {
+                nuevoModelo.SesionId = sesionId;
+                respuesta = await socioService.updatePersonaJuridica(nuevoModelo);
+                if (respuesta.IsSuccess)
+                {
+
+                    notificationService.Notify(new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Success,
+                            Duration = 3000,
+                            Summary = "Datos guardados correctamente"
+                        });
+
+                }
+            }
         }
         catch (Exception ex)
         {
             respuesta.Message = ex.Message;
+            notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Duration = 3000,
+                    Summary = "No se ha podido guardar los datos"
+                });
         }
+
         return respuesta;
+
     }
 
-    private bool checkData()
+    private async Task OpenDialogAsync(PersonaJuridicaDto personaJuridica)
     {
 
+        IDialogReference dialog;
 
-        // Apellido
-        if (!string.IsNullOrEmpty(modelPersonaJuridica.Denominacion))
+
+        var parameters = new DialogParameters();
+        parameters.Add("PersonaJuridica", personaJuridica);
+
+        dialog = DialogService.Show<UpdatePersonaJuridica>("Editar Integrante", parameters);
+
+        var result = await dialog.Result;
+        if (!result.Canceled)
         {
-            if (Validator.IsNumeric(modelPersonaJuridica.Denominacion))
-            {
-                msgErrorDenominacion = "No puedes ingresar un valor numérico";
-                return false;
-            }
-            else
-            {
-                msgErrorDenominacion = "";
-            }
+            var nuevoModelo = result.Data as PersonaJuridicaDto;
+            await updatePersonaJuridica(nuevoModelo);
         }
-        else
-        {
-            msgErrorDenominacion = "El campo no puede estar vacio";
-            return false;
-        }
-
-
-        // Nro id Fiscal
-        if (!string.IsNullOrEmpty(modelPersonaJuridica.NroFiscal))
-        {
-            if (!Validator.IsNumeric(modelPersonaJuridica.NroFiscal))
-            {
-                msgErrorCuit = "No puedes ingresar caracteres";
-                return false;
-            }
-            else
-            {
-                msgErrorCuit = "";
-            }
-        }
-        else
-        {
-            msgErrorCuit = "El campo no puede estar vacio";
-            return false;
-        }
-
-
-
-
-        // Cuotas
-        if (!string.IsNullOrEmpty(modelPersonaJuridica.Cuotas))
-        {
-            if (!Validator.IsNumeric(modelPersonaJuridica.Cuotas))
-            {
-                msgErrorCuotas = "No puedes ingresar caracteres";
-                return false;
-            }
-            else
-            {
-                msgErrorCuotas = "";
-            }
-        }
-        else
-        {
-            msgErrorCuotas = "El campo no puede estar vacio";
-            return false;
-        }
-
-        // Votos
-        if (!string.IsNullOrEmpty(modelPersonaJuridica.Votos))
-        {
-            if (!Validator.IsNumeric(modelPersonaJuridica.Votos))
-            {
-                msgErrorVotos = "No puedes ingresar caracteres";
-                return false;
-            }
-            else
-            {
-                msgErrorVotos = "";
-            }
-        }
-        else
-        {
-            msgErrorVotos = "El campo no puede estar vacio";
-            return false;
-        }
-
-
-
-
-
-        // Si todos los campos pasan la validación, devuelve true
-
-        msgErrorDenominacion = "";
-        msgErrorCuit = "";
-        msgErrorCuotas = "";
-        msgErrorVotos = "";
-
-        return true;
     }
 }
+
+
+
+
 

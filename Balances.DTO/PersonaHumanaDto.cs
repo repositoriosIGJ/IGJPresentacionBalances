@@ -2,6 +2,8 @@
 {
     public class PersonaHumanaDto
     {
+
+        public string SesionId { get; set; }
         public string Id { get; set; }
         public string Nombre { get; set; }
         public string Apellido { get; set; }
@@ -14,5 +16,6 @@
         public string Votos { get; set; }
 
         public bool EsFirmante { get; set; }
+        public string ValorNominal { get; set; }
     }
 }

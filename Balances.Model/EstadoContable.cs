@@ -42,10 +42,12 @@
         public decimal? AjusteCapital { get; set; }
         public decimal? AportesIrrevocables { get; set; }
         public decimal? PrimaEmision { get; set; }
-        public decimal? GananciasReservadas { get; set; }
-        public decimal? PerdidasAcumuladas { get; set; }
-        public decimal? GananciasPerdidasEjercicio { get; set; }
+        public decimal resultadosEjercicio { get; set; }
+        public decimal gananciasPerdidasInicioEjercicio { get; set; }
         public decimal? ReservaLegal { get; set; }
+
+        public decimal totalRubro { get; set; }
+
 
         private List<RubroPatrimonioNeto> _OtrosRubros;
         public List<RubroPatrimonioNeto> OtrosRubros

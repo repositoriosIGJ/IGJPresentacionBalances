@@ -40,10 +40,10 @@ namespace Balances.API.Controllers
         }
 
 
-        [HttpGet("GetAll")]
-        public IActionResult GetAll()
+        [HttpGet("GetAll/{correlativo}")]
+        public IActionResult GetAll(string correlativo)
         {
-            var balances = _balanceBusiness.List();
+            var balances = _balanceBusiness.List(correlativo);
 
             if (balances == null) return NotFound();
 
@@ -52,9 +52,8 @@ namespace Balances.API.Controllers
 
 
         [HttpPut("Update")]
-        public IActionResult Update(/*[FromBody] */BalanceDto balance)
+        public IActionResult Update(BalanceDto balance)
         {
-            //_balanceService.UpdateBalance(balance.Id, balance);
 
             var balancedto = _balanceBusiness.Update(balance);
 

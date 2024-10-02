@@ -20,8 +20,12 @@
             this.PatrimonioNeto = new LibroDto();
             this.Memoria = new LibroDto();
             this.Resultados = new LibroDto();
+            this.LibroDiario = new LibroDto();
 
         }
+
+        public string SessionId { get; set; }
+
         private LibroDto _Memoria;
         public LibroDto Memoria
         {
@@ -137,6 +141,13 @@
         {
             get { return _IVAVentas; }
             set { if (value == null) value = new LibroDto(); value.Tipo = "IVA Ventas"; _IVAVentas = value; }
+        }
+
+        private LibroDto _LibroDiario;
+        public LibroDto LibroDiario
+        {
+            get { return _LibroDiario; }
+            set { if (value == null) value = new LibroDto(); value.Tipo = "Libro Diario"; _LibroDiario = value; }
         }
 
     }

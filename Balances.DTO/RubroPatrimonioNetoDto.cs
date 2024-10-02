@@ -1,45 +1,46 @@
-﻿using Balances.Model;
-
-namespace Balances.DTO
+﻿namespace Balances.DTO
 {
     public class RubroPatrimonioNetoDto
     {
-        public string codigo { get; set; }
+
+        public string SesionId { get; set; }
+        public string codigo { get; set; } = Guid.NewGuid().ToString();
         public string denominacion { get; set; }
         public decimal importe { get; set; }
+
 
         public RubroPatrimonioNetoDto() { }
 
 
-        public RubroPatrimonioNetoDto(RubroPatrimonioNeto rubro)
-        {
+        //public RubroPatrimonioNetoDto(RubroPatrimonioNeto rubro)
+        //{
 
-            denominacion = rubro.Denominacion;
-            importe = rubro.Importe;
-            codigo = rubro.Codigo;
+        //    denominacion = rubro.Denominacion;
+        //    importe = rubro.Importe;
+        //    codigo = rubro.Codigo;
 
-        }
-        
-        public static RubroPatrimonioNetoDto ConvertirDesdeRubroPatrimonioNeto(RubroPatrimonioNeto rubro)
-        {
-            RubroPatrimonioNetoDto dto = new RubroPatrimonioNetoDto();
+        //}
 
-            dto.codigo = rubro.Codigo;
-            dto.denominacion = rubro.Denominacion;
-            dto.importe = rubro.Importe;
+        //public static RubroPatrimonioNetoDto ConvertirDesdeRubroPatrimonioNeto(RubroPatrimonioNeto rubro)
+        //{
+        //    RubroPatrimonioNetoDto dto = new RubroPatrimonioNetoDto();
 
-            return dto;
-        }
+        //    dto.codigo = rubro.Codigo;
+        //    dto.denominacion = rubro.Denominacion;
+        //    dto.importe = rubro.Importe;
 
-        public override bool Equals(object obj)
-        {
-            return obj is RubroPatrimonioNetoDto dto &&
-                   codigo == dto.codigo;
-        }
+        //    return dto;
+        //}
 
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(codigo);
-        }
+        //public override bool Equals(object obj)
+        //{
+        //    return obj is RubroPatrimonioNetoDto dto &&
+        //           codigo == dto.codigo;
+        //}
+
+        //public override int GetHashCode()
+        //{
+        //    return HashCode.Combine(codigo);
+        //}
     }
 }
